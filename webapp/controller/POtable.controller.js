@@ -20,7 +20,6 @@ sap.ui.define([
         },
 
         onReadOdata: function () {
-            sap.ui.core.BusyIndicator.show();
             var oDataModel = this.getOwnerComponent().getModel();
             var that = this;
 
@@ -119,7 +118,7 @@ sap.ui.define([
                     "DbKey": sFO,
                     "TorId": oFreightOrder.TorId,
                     "PkgQuaPcsVal": oFreightOrder.PkgQuaPcsVal,
-                    "QuaPcsUni":oFreightOrder.QuaPcsUni,
+                    "QuaPcsUni": oFreightOrder.QuaPcsUni,
                     "PkgPcsVal": oFreightOrder.PkgPcsVal,
                     // "PkgUni": oFreightOrder.PackUnit.PkgUni,
                     "PkgLength": oFreightOrder.PkgLength,
@@ -222,7 +221,7 @@ sap.ui.define([
                 this._oPOTableModel.setProperty("/cValidData", cValidData);
                 return;
             }
-            if (aFreightOrder.PkgMeasuom ==='') {
+            if (aFreightOrder.PkgMeasuom === '') {
                 MessageToast.show("Please Enter Valid Pkg Unit");
                 cValidData = true;
                 this._oPOTableModel.setProperty("/cValidData", cValidData);
@@ -234,7 +233,7 @@ sap.ui.define([
                 this._oPOTableModel.setProperty("/cValidData", cValidData);
                 return;
             }
-            if (aFreightOrder.GroWeiUni ==='') {
+            if (aFreightOrder.GroWeiUni === '') {
                 MessageToast.show("Please Enter Valid Weight Unit");
                 cValidData = true;
                 this._oPOTableModel.setProperty("/cValidData", cValidData);
@@ -254,6 +253,185 @@ sap.ui.define([
             }
         },
 
+        onPackItmPress: function () {
+            let oUpdateModel = this.getView().getModel("POTableModel");
+
+            let gettingInternalTable = this.byId("smartTable").getTable();
+            let gettingAllRows = gettingInternalTable.getBinding().aKeys;
+            let oSelIndices = gettingInternalTable.getSelectedIndices();
+            let aFreightOrder = this.getView().getModel().getObject("/" + gettingAllRows[oSelIndices[0]]);
+
+            if (oSelIndices.length === 0) {
+                MessageBox.error("Please Select the Rows");
+            } else {
+                if (!this.oDialogPackItem) {
+                    this.oDialogPackItem = sap.ui.xmlfragment(
+                        "com.iherb.tm.ztmiherbpurchaseorders.fragment.packItem",
+                        this
+                    );
+                    let oPath = "/ZC_FuTorItem(" + "guid" + "'" + aFreightOrder.DbKey + "')";
+                    this._setNewLoadData(oPath, aFreightOrder);
+                    this.getView().addDependent(this.oDialogPackItem);
+                }
+                this.oDialogPackItem.open();
+            }
+        },
+
+        _setNewLoadData: function (oPath, aFreightOrder) {
+            sap.ui.getCore().byId("confiPkgQty").setValue(aFreightOrder.PkgQuaPcsVal);
+            sap.ui.getCore().byId("PackQty").setValue(aFreightOrder.PkgPcsVal);
+
+            sap.ui.getCore().byId("inputLength").setValue(aFreightOrder.PkgLength);
+            sap.ui.getCore().byId("inputWidth").setValue(aFreightOrder.PkgWidth);
+            sap.ui.getCore().byId("inputHeight").setValue(aFreightOrder.PkgHeight);
+            sap.ui.getCore().byId("inputDimUnitId").setValue(aFreightOrder.PkgMeasuom);
+            sap.ui.getCore().byId("inputWeight").setValue(aFreightOrder.PkgWeiVal);
+            sap.ui.getCore().byId("InputWeightUnit").setValue(aFreightOrder.GroWeiUni);
+            sap.ui.getCore().byId("pkgId").setValue(aFreightOrder.PkgId);
+
+            sap.ui.getCore().byId("inputDate").setValue(aFreightOrder.PkgPickupDt);
+
+        },
+
+        onPressPackItem: function () {
+            var that = this;
+            // Validate Multiple fields 
+            var sConfiPkg = sap.ui.getCore().byId("confiPkgQty").getValue();
+            var sPackQty = sap.ui.getCore().byId("PackQty").getValue();
+            // var sPackQty = sap.ui.getCore().byId("PackType").getValue();
+            var sLength = sap.ui.getCore().byId("inputLength").getValue();
+            var sWidth = sap.ui.getCore().byId("inputWidth").getValue();
+            var sHeight = sap.ui.getCore().byId("inputHeight").getValue();
+            var sDimUOM = sap.ui.getCore().byId("inputDimUnitId").getValue();
+            var sWeight = sap.ui.getCore().byId("inputWeight").getValue();
+            var sWeightUOM = sap.ui.getCore().byId("InputWeightUnit").getValue();
+            var sPkgID = sap.ui.getCore().byId("pkgId").getValue();
+            var sPickUpDate = sap.ui.getCore().byId("inputDate").getDateValue();
+
+            if (sConfiPkg === "") {
+                sap.ui.getCore().byId("confiPkgQty").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("confiPkgQty").setValueState("None");
+            }
+            if (sPackQty === "") {
+                sap.ui.getCore().byId("PackQty").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("PackQty").setValueState("None");
+            }
+            if (sLength === "") {
+                sap.ui.getCore().byId("inputLength").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("inputLength").setValueState("None");
+            }
+            if (sWidth === "") {
+                sap.ui.getCore().byId("inputWidth").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("inputWidth").setValueState("None");
+            }
+            if (sHeight === "") {
+                sap.ui.getCore().byId("inputHeight").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("inputHeight").setValueState("None");
+            }
+            if (sDimUOM === "") {
+                sap.ui.getCore().byId("inputDimUnitId").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("inputDimUnitId").setValueState("None");
+            }
+            if (sWeight === "") {
+                sap.ui.getCore().byId("inputWeight").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("inputWeight").setValueState("None");
+            }
+            // if (sWeightUOM === "") {
+            //     sap.ui.getCore().byId("InputWeightUnit").setValueState("Error");
+            //     return;
+            // } else {
+            //     sap.ui.getCore().byId("InputWeightUnit").setValueState("None");
+            // }
+            if (sPkgID === "") {
+                sap.ui.getCore().byId("pkgId").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("pkgId").setValueState("None");
+            }
+            if (sPickUpDate === "") {
+                sap.ui.getCore().byId("inputDate").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("inputDate").setValueState("None");
+            }
+            this.updatePackItem();
+        },
+
+        updatePackItem: function () {
+            var i;
+            var that = this;
+            var oUpdateModel = this.getView().getModel();
+            oUpdateModel.sDefaultUpdateMethod = "PUT";
+
+            let gettingInternalTable = this.byId("smartTable").getTable();
+            let gettingAllRows = gettingInternalTable.getBinding().aKeys;
+            let oSelIndices = gettingInternalTable.getSelectedIndices();
+
+            var sConfiPkg = sap.ui.getCore().byId("confiPkgQty").getValue();
+            var sPackQty = sap.ui.getCore().byId("PackQty").getValue();
+            var sLength = sap.ui.getCore().byId("inputLength").getValue();
+            var sWidth = sap.ui.getCore().byId("inputWidth").getValue();
+            var sHeight = sap.ui.getCore().byId("inputHeight").getValue();
+            var sDimUOM = sap.ui.getCore().byId("inputDimUnitId").getValue();
+            var sWeight = sap.ui.getCore().byId("inputWeight").getValue();
+            var sWeightUOM = sap.ui.getCore().byId("InputWeightUnit").getValue();
+            var sPkgID = sap.ui.getCore().byId("pkgId").getValue();
+            var sPickUpDate = sap.ui.getCore().byId("inputDate").getDateValue();
+
+            for (i = 0; i < oSelIndices.length; i++) {
+                var oFreightOrder = this.getView().getModel().getObject("/" + gettingAllRows[oSelIndices[i]]);
+                var sFO = oFreightOrder.DbKey;
+                var sPOPayload = {
+                    "DbKey": sFO,
+                    "PkgQuaPcsVal": sConfiPkg,
+                    // "QuaPcsUni": ,
+                    "PkgPcsVal": sPackQty,
+                    // "PkgUni": oFreightOrder.PackUnit.PkgUni,
+                    "PkgLength": sLength,
+                    "PkgWidth": sWidth,
+                    "PkgHeight": sHeight,
+                    "PkgMeasuom": sDimUOM,
+                    "PkgWeiVal": sWeight,
+                    "GroWeiUni": sWeightUOM,
+                    "PkgId": sPkgID,
+                    "PkgPickupDt": sPickUpDate,
+                    // "LocDescr":oFreightOrder.LocDescr
+                };
+                var path = "/" + gettingAllRows[oSelIndices[i]];
+                    oUpdateModel.update(path, sPOPayload, {
+                        success: function (oData, response) {
+                            gettingInternalTable.getModel().refresh(true);
+                            MessageToast.show("Multiple Update Success");
+                            that.onPressCancelPack();
+                        },
+                        error: function (oError) {
+                            gettingInternalTable.getModel().refresh(true);
+                            MessageBox.error("Multiple Update Fail");
+                        }
+                    });
+            }
+
+
+        },
+
+        onPressCancelPack: function () {
+            this.oDialogPackItem.close();
+            this.oDialogPackItem.destroy();
+        }
         // **************************
     });
 });

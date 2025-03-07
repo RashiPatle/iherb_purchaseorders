@@ -39,7 +39,6 @@
         <m:footer>
             <m:Toolbar id="toolbar2">
                 <m:content>
-                    <m:Button press="onFAQPress" icon="sap-icon://question-mark" id="button3" />
                     <m:ToolbarSpacer id="spacer1" />
                     <m:Button id="idPacktogether" text="Pack Item" type="Emphasized" press="onPackItmPress" />
                     <m:Button press="onSubmitPress" text="Submit" id="button4" type="Emphasized" />
