@@ -1,6 +1,50 @@
 <mvc:View controllerName="com.iherb.tm.ztmiherbpurchaseorders.controller.POtable"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m">
-    <Page id="page" title="{i18n>title}">
-    </Page>
+    xmlns:plugins="sap.m.plugins"
+    xmlns:core="sap.ui.core"
+    xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
+    xmlns:smartTable="sap.ui.comp.smarttable"
+    xmlns:m="sap.m">
+    <m:Page id="page" showHeader="false" enableScrolling="false">
+        <m:VBox id="idvbox" fitContainer="true">
+            <smartFilterBar:SmartFilterBar id="smartFilterBar" entitySet="ZC_FuTorItem">
+                <smartFilterBar:controlConfiguration>
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration1" key="BaseBtdId" label="{i18n>PurchaseOrderLabel}" visibleInAdvancedArea="true" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration4" key="DesLoc" label="{i18n>PoDestinLoc}" visibleInAdvancedArea="true" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration2" key="PkgPickupDt" label="{i18n>PickUpLabel}" visibleInAdvancedArea="true" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration3" key="SrcLoc" label="{i18n>POpickuplocation}" visibleInAdvancedArea="true" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration8" key="PkgId" label="{i18n>packageid}" visibleInAdvancedArea="true" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration5" key="TorId" visible="false" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration6" key="PkgPcsVal" visible="false" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration7" key="PkgPcsUni" visible="false" />
+                </smartFilterBar:controlConfiguration>
+                <!-- layout data used to make the table growing but the filter bar fixed -->
+                <smartFilterBar:layoutData>
+                    <m:FlexItemData id="_IDGenFlexItemData1" shrinkFactor="0" />
+                </smartFilterBar:layoutData>
+            </smartFilterBar:SmartFilterBar>
+            <smartTable:SmartTable id="smartTable" tableType="Table" entitySet="ZC_FuTorItem" useTablePersonalisation="true" enableAutoBinding="true" showFullScreenButton="true" smartFilterId="smartFilterBar" header="{i18n>PurchaseOrderLabel}" showRowCount="true" persistencyKey="SmartTableRefApp_Explored" beforeExport="onBeforeExport" beforeRebindTable="onBeforeRebindTable" useVariantManagement="true" placeToolbarInTable="true" demandPopin="false" enableAutoColumnWidth="true" ignoredFields="GroWeiVal,GroWeiUni,GroVolVal,SrcLocIdTrq,GroVolUni,PkgPcsUni,PkgSrcLoc,Length,Width,Height,Shipperid,PkgMeasuom,PkgLength,PkgWidth,PkgHeight,Measuom" useExportToExcel="true" ignoreFromPersonalisation=" " requestAtLeastFields=" ">
+                <smartTable:customToolbar>
+                    <m:OverflowToolbar id="idToolbar" design="Transparent">
+                        <m:ToolbarSpacer id="idToolbarSpace" />
+                        <m:OverflowToolbarButton id="idRefresh" icon="sap-icon://refresh" tooltip="Refresh" press="onRefresh" visible="true" />
+                    </m:OverflowToolbar>
+                </smartTable:customToolbar>
+                <core:Fragment fragmentName="com.iherb.tm.ztmiherbpurchaseorders.fragment.tableExt" id="FragmentPOtable" type="XML" />
+                <smartTable:layoutData>
+                    <m:FlexItemData id="_IDGenFlexItemData2" growFactor="1" baseSize="0%" />
+                </smartTable:layoutData>
+            </smartTable:SmartTable>
+        </m:VBox>
+        <m:footer>
+            <m:Toolbar id="toolbar2">
+                <m:content>
+                    <m:Button press="onFAQPress" icon="sap-icon://question-mark" id="button3" />
+                    <m:ToolbarSpacer id="spacer1" />
+                    <m:Button id="idPacktogether" text="Pack Item" type="Emphasized" press="onPackItmPress" />
+                    <m:Button press="onSubmitPress" text="Submit" id="button4" type="Emphasized" />
+                </m:content>
+            </m:Toolbar>
+        </m:footer>
+    </m:Page>
 </mvc:View>
