@@ -7,8 +7,6 @@
             <VBox class="sapUiSmallMargin" id="formContainer">
                 <form:SimpleForm editable="true" id="cFragmentMyform" layout="ResponsiveGridLayout" columnsM="2" columnsL="2" columnsXL="2">
                     <form:content>
-                        <Label id="_IDGenLabel20" text="{i18n>confipackageQty}"/>
-                        <Input id="confiPkgQty" required="true" ></Input>
                         <Label id="_IDGenLabel6" text="{i18n>packageQty}"/>
                         <Input id="PackQty" type="Number" required="true"/>
                         <Label id="_IDGenLabel1" text="{i18n>packageType}"/>
@@ -21,16 +19,10 @@
                         <Input id="inputHeight" type="Number" required="true">
                         </Input>
                         <ComboBox id="inputDimUnitId" showSecondaryValues="true" required="true">
-                            <layoutData>
-                                <form:ColumnElementData id="_IDGenColumnElementData" cellsSmall="2" cellsLarge="1"/>
-                            </layoutData>
                         </ComboBox>
                         <Label id="_IDGenLabel10" text="{i18n>weight}"/>
                         <Input id="inputWeight" type="Number" required="true"/>
                         <ComboBox id="InputWeightUnit" showSecondaryValues="true" required="true">
-                            <layoutData>
-                                <form:ColumnElementData id="_IDGenColumnElementData1" cellsSmall="2" cellsLarge="1"/>
-                            </layoutData>
                         </ComboBox>
                         <Label id="_IDGenLabel22" text="{i18n>packageid}"/>
                         <Input id="pkgId" type="Number" required="true"/>

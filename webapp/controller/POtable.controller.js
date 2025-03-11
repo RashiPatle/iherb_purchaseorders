@@ -15,8 +15,8 @@ sap.ui.define([
 
             this._oPartnerModel = new sap.ui.model.json.JSONModel();
             this.getView().setModel(this._oPartnerModel, "PartnerModel");
-            this.onReadOdata();
-            this.onReadPackOdata();
+            // this.onReadOdata();
+            // this.onReadPackOdata();
         },
 
         onReadOdata: function () {
@@ -27,12 +27,15 @@ sap.ui.define([
             oDataModel.read("/ZC_FuTorItem", {
                 success: function (oData) {
                     sap.ui.core.BusyIndicator.hide();
+                    this._oPOTableModel.setData(oData);
                     console.log("PO OData loaded/Response:", oData);
+
+                    // Add a flag manually
                     oData.results.forEach(function (item) {
-                        item.FreightUnitEditFlag = true; // Add the flag manually
-                    }),
-                        that._oPOTableModel.setData({ FreightOrders: oData.results });
-                    console.log("Updated Data with FreightUnitEditFlag:", that._oPOTableModel.getData());
+                        item.FreightUnitEditFlag = true;
+                    });
+                    // Store the fetched data in POTableModel
+                    that._oPOTableModel.setData({ FreightOrders: oData.results });
                 }.bind(this),
                 error: function (oerror) {
                     sap.ui.core.BusyIndicator.hide();
@@ -43,12 +46,14 @@ sap.ui.define([
 
         onReadPackOdata: function () {
             var oDataModel = this.getOwnerComponent().getModel();
+            var that = this;
 
             oDataModel.read("/ZI_PKG_UNIT", {
                 success: function (oresponse) {
                     sap.ui.core.BusyIndicator.hide();
                     this._oPkgModel.setData(oresponse.results);
                     console.log("Pack Type Data:", oresponse.results);
+
                 }.bind(this),
                 error: function (oerror) {
                     console.log("Pack Type data not loaded", oerror);
@@ -69,6 +74,92 @@ sap.ui.define([
 
         onRefresh: function () {
             this.byId("smartTable").rebindTable();
+            // this.getView().getModel().refresh(true);
+        },
+
+        onPressSave: function () {
+            var that = this;
+            this.onPressCancel();
+            var i;
+            let oUpdateModel = this.getView().getModel();
+            let gettingInternalTable = this.byId("smartTable").getTable();
+            let gettingAllRows = gettingInternalTable.getBinding().aKeys;
+            let oSelIndices = gettingInternalTable.getSelectedIndices();
+
+            for (i = 0; i < oSelIndices.length; i++) {
+                var oFreightOrder = this.getView().getModel().getObject("/" + gettingAllRows[oSelIndices[i]]);
+
+                var sFO = oFreightOrder.DbKey;
+                var sPOPayload = {
+                    "DbKey": sFO,
+                    "TorId": oFreightOrder.TorId,
+                    "PkgQuaPcsVal": oFreightOrder.PkgQuaPcsVal,
+                    "PkgQuaPcsUni": oFreightOrder.PkgQuaPcsUni,
+                    "PkgPcsVal": oFreightOrder.PkgPcsVal,
+                    "PkgPcsUni": oFreightOrder.PkgPcsUni,
+                    "PkgLength": oFreightOrder.PkgLength,
+                    "PkgWidth": oFreightOrder.PkgWidth,
+                    "PkgHeight": oFreightOrder.PkgHeight,
+                    "PkgMeasuom": oFreightOrder.PkgMeasuom,
+                    "PkgWeiVal": oFreightOrder.PkgWeiVal,
+                    "PkgWeiUni": oFreightOrder.PkgWeiUni,
+                    "PkgId": oFreightOrder.PkgId,
+                    "PkgPickupDt": this.convertDateUTC(oFreightOrder.PkgPickupDt),
+                    "PkgReeferComply": Boolean(oFreightOrder.PkgReeferComply),
+                    "SrcLoc": oFreightOrder.SrcLoc
+                };
+                var path = "/ZC_FuTorItem(guid'" + sFO + "')";
+                oUpdateModel.update(path, sPOPayload, {
+                    success: function (oData, response) {
+                        MessageToast.show(
+                            "Freight Unit " +
+                            oFreightOrder.TorId +
+                            " Updated successfully"
+                        );
+                        // Refresh the model after successful update
+                        oUpdateModel.refresh(true);
+                    },
+                    error: function (oError) {
+                        MessageToast.show(
+                            "Error " +
+                            oFreightOrder.TorId +
+                            "Update request failed"
+                        );
+                    },
+                });
+            }
+        },
+
+        onSubmitPress: function () {
+            var i;
+            var that = this;
+            var cValidErr = false;
+            this._oPOTableModel.setProperty("/cValidData", cValidErr);
+
+            let gettingInternalTable = this.byId("smartTable").getTable();
+            console.log("Smart Table:", gettingInternalTable); // Debugging
+
+            var gettingAllRows = gettingInternalTable.getBinding().aKeys;
+            var oSelIndices = gettingInternalTable.getSelectedIndices();
+            if (oSelIndices.length === 0) {
+                MessageBox.error("Please Select the Rows");
+            } else {
+                for (i = 0; i < oSelIndices.length; i++) {
+                    var aFreightOrder = this.getView().getModel().getObject("/" + gettingAllRows[oSelIndices[i]]);
+                    // Check if FreightUnitEditFlag exists; if not, set it manually
+                    // if (!aFreightOrder.hasOwnProperty("FreightUnitEditFlag")) {
+                    //     aFreightOrder.FreightUnitEditFlag = true; // Default value
+                    // }
+                    if (aFreightOrder.FreightUnitEditFlag === false) {
+                        console.log("Freight Order Data:", aFreightOrder); // Debugging
+                        console.log("FreightUnitEditFlag:", aFreightOrder.FreightUnitEditFlag);
+
+                        return;
+                    }
+                    // this._ValidationMandatoryFields(aFreightOrder);
+                }
+                this.openConfirmDialog();
+            }
         },
 
         openConfirmDialog: async function () {
@@ -87,107 +178,6 @@ sap.ui.define([
             this.oCompleteDialog.close();
             this.oCompleteDialog.destroy();
             this.oCompleteDialog = null;
-        },
-
-        onPressSave: function () {
-            var that = this;
-            this.onPressCancel();
-            var i;
-            let oUpdateModel = this.getView().getModel("POTableModel");
-            let gettingInternalTable = this.byId("smartTable").getTable();
-            let gettingAllRows = gettingInternalTable.getBinding().aKeys;
-            let oSelIndices = gettingInternalTable.getSelectedIndices();
-
-            for (i = 0; i < oSelIndices.length; i++) {
-                var oFreightOrder = this.getView().getModel().getObject("/" + gettingAllRows[oSelIndices[i]]);
-
-                // Get Pack Data
-                var oPackData = this.getView().getModel("PkgModel").getData();
-                // Get Freight Orders
-                var oPOTableModel = this.getView().getModel("POTableModel");
-                var oFreightOrders = oPOTableModel.getData().FreightOrders;
-                // Attach Partner Data into each Freight Order
-                oFreightOrders.forEach(order => {
-                    order.PackUnit = oPackData;
-                });
-                // Update Model
-                oPOTableModel.setData({ FreightOrders: oFreightOrders });
-
-                var sFO = oFreightOrder.DbKey;
-                var sPOPayload = {
-                    "DbKey": sFO,
-                    "TorId": oFreightOrder.TorId,
-                    "PkgQuaPcsVal": oFreightOrder.PkgQuaPcsVal,
-                    "QuaPcsUni": oFreightOrder.QuaPcsUni,
-                    "PkgPcsVal": oFreightOrder.PkgPcsVal,
-                    // "PkgUni": oFreightOrder.PackUnit.PkgUni,
-                    "PkgLength": oFreightOrder.PkgLength,
-                    "PkgWidth": oFreightOrder.PkgWidth,
-                    "PkgHeight": oFreightOrder.PkgHeight,
-                    "PkgMeasuom": oFreightOrder.PkgMeasuom,
-                    "PkgWeiVal": oFreightOrder.PkgWeiVal,
-                    "GroWeiUni": oFreightOrder.GroWeiUni,
-                    "PkgId": oFreightOrder.PkgId,
-                    "PkgPickupDt": oFreightOrder.PkgPickupDt,
-                    // "LocDescr":oFreightOrder.LocDescr
-                };
-                var path = "/ZC_FuTorItem(guid'" + sFO + "')";
-                this.getView().getModel().update(path, sPOPayload, {
-                    success: function (oData, response) {
-                        MessageToast.show(
-                            "Freight Unit " +
-                            oFreightOrder.TorId +
-                            " Updated successfully"
-                        );
-                        oUpdateModel.refresh(true);
-                    },
-                    error: function (oError) {
-                        MessageToast.show(
-                            "Error " +
-                            oFreightOrder.TorId +
-                            " Update request failed"
-                        );
-                    },
-                });
-            }
-        },
-
-        onSubmitPress: function () {
-            var i;
-            var that = this;
-            var cValidErr = false;
-            this._oPOTableModel.setProperty("/cValidData", cValidErr);
-
-            let oUpdateModel = this.getView().getModel("POTableModel");
-            let gettingInternalTable = this.byId("smartTable").getTable();
-            console.log("Smart Table:", gettingInternalTable); // Debugging
-            console.log("Model Data:", oUpdateModel.getData()); // Debugging
-
-            var gettingAllRows = gettingInternalTable.getBinding().aKeys;
-            var oSelIndices = gettingInternalTable.getSelectedIndices();
-            if (oSelIndices.length === 0) {
-                MessageBox.error("Please Select the Rows");
-            } else {
-                for (i = 0; i < oSelIndices.length; i++) {
-                    var aFreightOrder = this.getView()
-                        .getModel()
-                        .getObject("/" + gettingAllRows[oSelIndices[i]]);
-
-                    // Check if FreightUnitEditFlag exists; if not, set it manually
-                    if (!aFreightOrder.hasOwnProperty("FreightUnitEditFlag")) {
-                        aFreightOrder.FreightUnitEditFlag = true; // Default value
-                    }
-
-                    if (aFreightOrder.FreightUnitEditFlag === false) {
-                        console.log("Freight Order Data:", aFreightOrder); // Debugging
-                        console.log("FreightUnitEditFlag:", aFreightOrder.FreightUnitEditFlag);
-
-                        return;
-                    }
-                    this._ValidationMandatoryFields(aFreightOrder, cValidErr);
-                }
-                this.openConfirmDialog();
-            }
         },
 
         _ValidationMandatoryFields: function (aFreightOrder, cValidErr) {
@@ -254,7 +244,7 @@ sap.ui.define([
         },
 
         onPackItmPress: function () {
-            let oUpdateModel = this.getView().getModel("POTableModel");
+            let oUpdateModel = this.getView().getModel("");
 
             let gettingInternalTable = this.byId("smartTable").getTable();
             let gettingAllRows = gettingInternalTable.getBinding().aKeys;
@@ -272,33 +262,37 @@ sap.ui.define([
                     let oPath = "/ZC_FuTorItem(" + "guid" + "'" + aFreightOrder.DbKey + "')";
                     this._setNewLoadData(oPath, aFreightOrder);
                     this.getView().addDependent(this.oDialogPackItem);
+                    
+                    return;
                 }
                 this.oDialogPackItem.open();
             }
         },
 
         _setNewLoadData: function (oPath, aFreightOrder) {
-            sap.ui.getCore().byId("confiPkgQty").setValue(aFreightOrder.PkgQuaPcsVal);
+            var oPackageType = sap.ui.getCore().byId("PackType");
+            var oPackageTypeSelectTemplate = new sap.ui.core.ListItem({ key: "{PkgUni}", text: "{PkgUni}", additionalText: "{Descr}" });
+            oPackageType.bindItems({
+                path: "/ZI_PKG_UNIT",
+                template: oPackageTypeSelectTemplate
+            });
             sap.ui.getCore().byId("PackQty").setValue(aFreightOrder.PkgPcsVal);
-
             sap.ui.getCore().byId("inputLength").setValue(aFreightOrder.PkgLength);
             sap.ui.getCore().byId("inputWidth").setValue(aFreightOrder.PkgWidth);
             sap.ui.getCore().byId("inputHeight").setValue(aFreightOrder.PkgHeight);
             sap.ui.getCore().byId("inputDimUnitId").setValue(aFreightOrder.PkgMeasuom);
             sap.ui.getCore().byId("inputWeight").setValue(aFreightOrder.PkgWeiVal);
-            sap.ui.getCore().byId("InputWeightUnit").setValue(aFreightOrder.GroWeiUni);
+            sap.ui.getCore().byId("InputWeightUnit").setValue(aFreightOrder.PkgWeiUni);
             sap.ui.getCore().byId("pkgId").setValue(aFreightOrder.PkgId);
-
             sap.ui.getCore().byId("inputDate").setValue(aFreightOrder.PkgPickupDt);
-
         },
 
         onPressPackItem: function () {
             var that = this;
             // Validate Multiple fields 
-            var sConfiPkg = sap.ui.getCore().byId("confiPkgQty").getValue();
+           
             var sPackQty = sap.ui.getCore().byId("PackQty").getValue();
-            // var sPackQty = sap.ui.getCore().byId("PackType").getValue();
+            var sPackTyp = sap.ui.getCore().byId("PackType").getValue();
             var sLength = sap.ui.getCore().byId("inputLength").getValue();
             var sWidth = sap.ui.getCore().byId("inputWidth").getValue();
             var sHeight = sap.ui.getCore().byId("inputHeight").getValue();
@@ -308,17 +302,17 @@ sap.ui.define([
             var sPkgID = sap.ui.getCore().byId("pkgId").getValue();
             var sPickUpDate = sap.ui.getCore().byId("inputDate").getDateValue();
 
-            if (sConfiPkg === "") {
-                sap.ui.getCore().byId("confiPkgQty").setValueState("Error");
-                return;
-            } else {
-                sap.ui.getCore().byId("confiPkgQty").setValueState("None");
-            }
             if (sPackQty === "") {
                 sap.ui.getCore().byId("PackQty").setValueState("Error");
                 return;
             } else {
                 sap.ui.getCore().byId("PackQty").setValueState("None");
+            }
+            if (sPackTyp === "") {
+                sap.ui.getCore().byId("PackType").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("PackType").setValueState("None");
             }
             if (sLength === "") {
                 sap.ui.getCore().byId("inputLength").setValueState("Error");
@@ -350,12 +344,12 @@ sap.ui.define([
             } else {
                 sap.ui.getCore().byId("inputWeight").setValueState("None");
             }
-            // if (sWeightUOM === "") {
-            //     sap.ui.getCore().byId("InputWeightUnit").setValueState("Error");
-            //     return;
-            // } else {
-            //     sap.ui.getCore().byId("InputWeightUnit").setValueState("None");
-            // }
+            if (sWeightUOM === "") {
+                sap.ui.getCore().byId("InputWeightUnit").setValueState("Error");
+                return;
+            } else {
+                sap.ui.getCore().byId("InputWeightUnit").setValueState("None");
+            }
             if (sPkgID === "") {
                 sap.ui.getCore().byId("pkgId").setValueState("Error");
                 return;
@@ -375,14 +369,14 @@ sap.ui.define([
             var i;
             var that = this;
             var oUpdateModel = this.getView().getModel();
-            oUpdateModel.sDefaultUpdateMethod = "PUT";
+            oUpdateModel.sDefaultUpdateMethod = "MERGE";
 
             let gettingInternalTable = this.byId("smartTable").getTable();
             let gettingAllRows = gettingInternalTable.getBinding().aKeys;
             let oSelIndices = gettingInternalTable.getSelectedIndices();
 
-            var sConfiPkg = sap.ui.getCore().byId("confiPkgQty").getValue();
             var sPackQty = sap.ui.getCore().byId("PackQty").getValue();
+            var sPackTyp = sap.ui.getCore().byId("PackType").getValue();
             var sLength = sap.ui.getCore().byId("inputLength").getValue();
             var sWidth = sap.ui.getCore().byId("inputWidth").getValue();
             var sHeight = sap.ui.getCore().byId("inputHeight").getValue();
@@ -397,10 +391,8 @@ sap.ui.define([
                 var sFO = oFreightOrder.DbKey;
                 var sPOPayload = {
                     "DbKey": sFO,
-                    "PkgQuaPcsVal": sConfiPkg,
-                    // "QuaPcsUni": ,
                     "PkgPcsVal": sPackQty,
-                    // "PkgUni": oFreightOrder.PackUnit.PkgUni,
+                    "PkgPcsUni":sPackTyp,
                     "PkgLength": sLength,
                     "PkgWidth": sWidth,
                     "PkgHeight": sHeight,
@@ -409,20 +401,20 @@ sap.ui.define([
                     "GroWeiUni": sWeightUOM,
                     "PkgId": sPkgID,
                     "PkgPickupDt": sPickUpDate,
-                    // "LocDescr":oFreightOrder.LocDescr
+
                 };
-                var path = "/" + gettingAllRows[oSelIndices[i]];
-                    oUpdateModel.update(path, sPOPayload, {
-                        success: function (oData, response) {
-                            gettingInternalTable.getModel().refresh(true);
-                            MessageToast.show("Multiple Update Success");
-                            that.onPressCancelPack();
-                        },
-                        error: function (oError) {
-                            gettingInternalTable.getModel().refresh(true);
-                            MessageBox.error("Multiple Update Fail");
-                        }
-                    });
+                var path = "/ZC_FuTorItem(guid'" + sFO + "')";
+                oUpdateModel.update(path, sPOPayload, {
+                    success: function (oData, response) {
+                        gettingInternalTable.getModel().refresh(true);
+                        MessageToast.show("Multiple Update Success");
+                        that.onPressCancelPack();
+                    },
+                    error: function (oError) {
+                        gettingInternalTable.getModel().refresh(true);
+                        MessageBox.error("Multiple Update Fail");
+                    }
+                });
             }
 
 
@@ -430,8 +422,17 @@ sap.ui.define([
 
         onPressCancelPack: function () {
             this.oDialogPackItem.close();
-            this.oDialogPackItem.destroy();
-        }
+        },
+
+        convertDateUTC: function (sDate) {
+            var iYear = sDate.getUTCFullYear();
+            var iMonth = sDate.getUTCMonth();
+            var iDay = sDate.getUTCDate();
+            var iHour = sDate.getUTCHours();
+            var iMinute = sDate.getUTCMinutes();
+            var dDate = new Date(Date.UTC(iYear, iMonth, iDay, iHour, iMinute));
+            return dDate;
+        },
         // **************************
     });
 });
