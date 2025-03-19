@@ -5,7 +5,7 @@
             <Text id="_IDGenText" text="{i18n>confirm}" textAlign="Center"/>
         </content>
         <beginButton>
-            <Button id="_IDGenButton1" text="{i18n>accept}" type="Accept" press="onPressSave"/>
+            <Button id="_IDGenButton1" text="{i18n>accept}" type="Accept" press="onPressConfirmBox"/>
         </beginButton>
         <endButton>
             <Button id="_IDGenButton2" text="{i18n>reject}" type="Reject" press="onPressCancel"/>

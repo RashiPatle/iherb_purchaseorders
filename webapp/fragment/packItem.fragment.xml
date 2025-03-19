@@ -30,7 +30,7 @@
                         <Label id="_IDGenLabel11" text="{i18n>pickupLoc}"/>
                         <Select id="inputLoc" required="true"/>
                         <Label id="_IDGenLabel18" text="{i18n>pickupdate}"/>
-                        <DatePicker id="inputDate" valueFormat="MM/dd/yyyy HH:mm" displayFormat="MM/dd/yyyy HH:mm" required="true"/>
+                        <DatePicker id="inputDate" valueFormat="{MM/dd/yyyy,type: 'sap.ui.model.type.DateTime'}" displayFormat="MM/dd/yyyy" required="true"/>
                     </form:content>
                     <form:title>
                         <core:Title text="{i18n>poDetails}" id="title15"/>
@@ -41,7 +41,7 @@
         <footer>
             <Toolbar id="_IDGenToolbar">
                 <content>
-                	<ToolbarSpacer id="_IDGenToolbarSpacer1" />
+                    <ToolbarSpacer id="_IDGenToolbarSpacer1" />
                     <Button id="_IDGenButton" text="{i18n>accept}" type="Accept" press="onPressPackItem"/>
                     <Button id="_IDGenButton3" text="{i18n>reject}" type="Reject" press="onPressCancelPack"/>
                 </content>

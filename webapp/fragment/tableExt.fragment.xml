@@ -5,7 +5,7 @@
     xmlns:smartField="sap.ui.comp.smartfield"
     xmlns:t="sap.ui.table"
     xmlns:smartTable="sap.ui.comp.smarttable">
-    <t:Table id="idPOTable" selectionMode="Multi" selectionBehavior="Row" enableColumnFreeze="true" rowSelectionChange="onRowSelect">
+    <t:Table id="idPOTable" selectionMode="Multi" selectionBehavior="Row" alternateRowColors="true">
         <t:columns>
             <t:Column id="_IDGenColumn2" width="8rem" sortProperty="BaseBtdId" filterProperty="BaseBtdId" sorted="true" sortOrder="Descending">
                 <t:customData>
@@ -80,7 +80,7 @@
                 </t:customData>
                 <m:Label id="idLabPickup9" text="{i18n>PoPickupDt}" />
                 <t:template>
-                    <m:Text id="idPoPickDt9" text="{path:'PickupDt',type: 'sap.ui.model.type.DateTime', formatOptions: {'pattern': 'MM/dd/yyyy HH:mm'}}"></m:Text>
+                    <m:Text id="idPoPickDt9" text="{path:'PickupDt',type: 'sap.ui.model.type.DateTime', formatOptions: {'pattern': 'MM/dd/yyyy'}}"></m:Text>
                 </t:template>
             </t:Column>
             <!-- PO Destination Location -->
@@ -100,7 +100,7 @@
                 </t:customData>
                 <m:Label id="idLabPickup11" text="{i18n>PoDeliDt}" />
                 <t:template>
-                    <m:Text id="idPoDeliveryDt11" text="{path:'DeliveryDt',type: 'sap.ui.model.type.DateTime', formatOptions: {'pattern': 'MM/dd/yyyy HH:mm'}}"></m:Text>
+                    <m:Text id="idPoDeliveryDt11" text="{path:'DeliveryDt',type: 'sap.ui.model.type.DateTime', formatOptions: {'pattern': 'MM/dd/yyyy'}}"></m:Text>
                 </t:template>
             </t:Column>
             <!-- Confirm Quantity $$$$$$$$$$$$$$$$$$$$editttt$$$$$$$$$$$$$$$$$$$$$$$$$$$-->
@@ -111,9 +111,8 @@
                 <m:Label id="_IDGenLabel12" text="{i18n>confipackageQty}" required="true"/>
                 <t:template>
                     <m:HBox id="_IDGenHBox12">
-                        <m:Input id="confQtyId" width="4rem" value="{PkgQuaPcsVal}" type="Number" required="true" editable="{FreightUnitEditFlag}"/>
-                        <m:ToolbarSpacer id="_IDGenToolbarSpacer"></m:ToolbarSpacer>
-                        <m:Input id="confQty" value="{PkgQuaPcsUni}" type="Text" />
+                        <m:Input id="confQtyId" width="4rem" value="{PkgQuaPcsVal}" type="Number" required="true" editable="{= ${ReadOnly} !== 'X' }"/>
+                        <m:Input id="confQty" value="{PkgQuaPcsUni}" type="Text" editable="{= ${ReadOnly} !== 'X' }" />
                     </m:HBox>
                 </t:template>
             </t:Column>
@@ -125,7 +124,7 @@
                 <m:Label id="_IDGenLabel13" text="{i18n>packageQty}" required="true"/>
                 <t:template>
                     <m:HBox id="_IDGenHBox3">
-                        <m:Input id="packageQtyId13" value="{PkgPcsVal}" type="Number" required="true" editable="{FreightUnitEditFlag}" />
+                        <m:Input id="packageQtyId13" value="{PkgPcsVal}" type="Number" required="true" editable="{= ${ReadOnly} !== 'X' }" />
                     </m:HBox>
                 </t:template>
             </t:Column>
@@ -136,7 +135,7 @@
                 </t:customData>
                 <m:Label id="_IDGenLabel16" text="{i18n>packageType}" required="true"/>
                 <t:template>
-                    <m:ComboBox id="comboBox_PkgPcsUni" selectedKey="{PkgPcsUni}" items="{path:'/ZI_PKG_UNIT',templateShareable:false}" showSecondaryValues="true" required="true" editable="{FreightUnitEditFlag}">
+                    <m:ComboBox id="comboBox_PkgPcsUni" selectedKey="{PkgPcsUni}" items="{path:'/ZI_PKG_UNIT',templateShareable:false}" showSecondaryValues="true" required="true" editable="{= ${ReadOnly} !== 'X' }">
                         <core:ListItem id="_IDGenListItem3" key="{PkgUni}" text="{PkgUni}" additionalText="{Descr}" />
                     </m:ComboBox>
                     <!-- <m:Input id="_IDGenListItem3" value="{PkgPcsUni}" type="Text" required="true" editable="{FreightUnitEditFlag}" /> -->
@@ -150,11 +149,11 @@
                 <m:Label id="_IDGenLabel14" text="{i18n>dimensions}" />
                 <t:template >
                     <m:HBox id="_IDGenHBox1">
-                        <m:Input id="lengthId" value="{PkgLength}" type="Number" editable="{FreightUnitEditFlag}" required="true" />
-                        <m:Input id="widthId" value="{PkgWidth}" type="Number" editable="{FreightUnitEditFlag}" required="true" />
-                        <m:Input id="heightId" value="{PkgHeight}" type="Number" editable="{FreightUnitEditFlag}" required="true"/>
+                        <m:Input id="lengthId" value="{PkgLength}" type="Number" editable="{= ${ReadOnly} !== 'X' }" required="true" />
+                        <m:Input id="widthId" value="{PkgWidth}" type="Number" editable="{= ${ReadOnly} !== 'X' }" required="true" />
+                        <m:Input id="heightId" value="{PkgHeight}" type="Number" editable="{= ${ReadOnly} !== 'X' }" required="true"/>
                         <!-- <m:Input id="_IDGenInput" value="{PkgMeasuom}" type="Text" required="true" editable="{FreightUnitEditFlag}" /> -->
-                        <m:ComboBox id="_IDGenComboBox14" value="{PkgMeasuom}" showSecondaryValues="true" editable="{FreightUnitEditFlag}">
+                        <m:ComboBox id="_IDGenComboBox14" value="{PkgMeasuom}" showSecondaryValues="true" editable="{= ${ReadOnly} !== 'X' }">
                             <core:ListItem id="_IDGenListItem1.1" key="CM" text="CM" additionalText="Centimeter"/>
                             <core:ListItem id="_IDGenListItem1.2" key="M" text="M" additionalText="Meter"/>
                             <core:ListItem id="_IDGenListItem1.3" key="KM" text="KM" additionalText="Kilometer"/>
@@ -163,16 +162,16 @@
                 </t:template>
             </t:Column>
             <!-- Package Weight  -->
-            <t:Column id="_IDGenColumn15" width="8rem" sortProperty="PkgWeiVal" filterProperty="PkgWeiVal">
+            <t:Column id="_IDGenColumn15" width="10rem" sortProperty="PkgWeiVal" filterProperty="PkgWeiVal">
                 <t:customData>
                     <core:CustomData key="p13nData" value='{"columnKey": "PkgWeiVal" , "leadingProperty":"PkgWeiVal"}'/>
                 </t:customData>
                 <m:Label id="_IDGenLabel15" text="{i18n>weight}" />
                 <t:template>
                     <m:HBox id="_IDGenHBox15">
-                        <m:Input id="weightId" value="{PkgWeiVal}" type="Number" editable="{FreightUnitEditFlag}" />
+                        <m:Input id="weightId" value="{PkgWeiVal}" type="Number" editable="{= ${ReadOnly} !== 'X' }" />
                         <!-- <m:Input id="_IDGenInput1" value="{PkgWeiUni}" type="Text" editable="{FreightUnitEditFlag}" /> -->
-                        <m:ComboBox id="_IDGenComboBox2" value="{PkgWeiUni}" showSecondaryValues="true" editable="{FreightUnitEditFlag}">
+                        <m:ComboBox id="_IDGenComboBox2" value="{PkgWeiUni}" showSecondaryValues="true" editable="{= ${ReadOnly} !== 'X' }">
                             <core:ListItem id="_IDGenListItem2.1" key="LB" text="LB" additionalText="Pound"/>
                             <core:ListItem id="_IDGenListItem2.2" key="G" text="G" additionalText="Gram"/>
                             <core:ListItem id="_IDGenListItem2.3" key="KG" text="KG" additionalText="Kilogram"/>
@@ -187,7 +186,7 @@
                 </t:customData>
                 <m:Label id="_IDGenLabel17" text="{i18n>packageid}" required="true"/>
                 <t:template>
-                    <m:Input id="packMatInfoId17" value="{PkgId}" editable="{FreightUnitEditFlag}" required="true"/>
+                    <m:Input id="packMatInfoId17" value="{PkgId}" editable="{= ${ReadOnly} !== 'X' }" required="true"/>
                 </t:template>
             </t:Column>
             <!-- Pick up date -->
@@ -197,19 +196,19 @@
                 </t:customData>
                 <m:Label id="idLabPickup18" text="{i18n>pickupdate}" required="true"/>
                 <t:template>
-                    <m:DatePicker id="pickUpDateId" editable="{FreightUnitEditFlag}" value="{path: 'PkgPickupDt', type: 'sap.ui.model.type.DateTime', formatOptions: {'pattern': 'MM/dd/yyyy HH:mm'}}"/>
+                    <m:DatePicker id="pickUpDateId" editable="{= ${ReadOnly} !== 'X' }" value="{path: 'PkgPickupDt', type: 'sap.ui.model.type.DateTime', formatOptions: {'pattern': 'MM/dd/yyyy'}}"/>
                 </t:template>
             </t:Column>
             <!-- Pick up Location -->
-            <t:Column id="_IDGenColumn19" width="15rem" sortProperty="SrcLoc" filterProperty="SrcLoc">
+            <t:Column id="_IDGenColumn19" width="15rem" sortProperty="PkgSrcLoc" filterProperty="PkgSrcLoc">
                 <t:customData>
-                    <core:CustomData key="p13nData" value='{"columnKey": "SrcLoc", "leadingProperty": "SrcLoc"}'/>
+                    <core:CustomData key="p13nData" value='{"columnKey": "PkgSrcLoc", "leadingProperty": "PkgSrcLoc"}'/>
                 </t:customData>
                 <m:Label id="_IDGenLabel19" text="{i18n>pickupLoc}" />
                 <t:template>
-                    <m:ComboBox id="_IDGenComboBox20" width="300px" items="{path:'/ZI_PARTNER_LOC', filters: [{path: 'Partner', operator: 'EQ', value1: '000100002'}]}" selectedKey="{SrcLoc}" editable="{FreightUnitEditFlag}">
-                        <core:Item id="_IDGenListItem20" key="{LocDescr}" text="{LocDescr}"></core:Item>
-                    </m:ComboBox>
+                    <m:Select id="_IDGenComboBox20" width="300px" selectedKey="{PkgSrcLoc}" editable="{= ${ReadOnly} !== 'X' }" items="{path:'to_Shipper',templateShareable:false}">
+                        <core:Item id="_IDGenListItem20" key="{Location}" text="{LocDescr}"></core:Item>
+                    </m:Select>
                     <!-- <m:Input id="_IDGenListItem20" value="{LocDescr}" type="Text" required="true" editable="{FreightUnitEditFlag}" /> -->
                 </t:template>
             </t:Column>
@@ -220,7 +219,7 @@
                 </t:customData>
                 <m:Label id="_IDGenLabel21" text="{i18n>reefComply}"/>
                 <t:template>
-                    <m:CheckBox id="idreefComply" selected="{= ${PkgReeferComply} ==='true'}" valueState="Information"></m:CheckBox>
+                    <m:CheckBox id="idreefComply" editable="{= ${ReadOnly} !== 'X' }" selected="{= ${PkgReeferComply} ==='false'}" valueState="Information"></m:CheckBox>
                 </t:template>
             </t:Column>
         </t:columns>
