@@ -154,9 +154,9 @@
                         <m:Input id="heightId" value="{PkgHeight}" type="Number" editable="{= ${ReadOnly} !== 'X' }" required="true"/>
                         <!-- <m:Input id="_IDGenInput" value="{PkgMeasuom}" type="Text" required="true" editable="{FreightUnitEditFlag}" /> -->
                         <m:ComboBox id="_IDGenComboBox14" value="{PkgMeasuom}" showSecondaryValues="true" editable="{= ${ReadOnly} !== 'X' }">
-                            <core:ListItem id="_IDGenListItem1.1" key="CM" text="CM" additionalText="Centimeter"/>
-                            <core:ListItem id="_IDGenListItem1.2" key="M" text="M" additionalText="Meter"/>
-                            <core:ListItem id="_IDGenListItem1.3" key="KM" text="KM" additionalText="Kilometer"/>
+                            <core:ListItem id="_IDGenListItem1" key="CM" text="CM" additionalText="Centimeter"/>
+                            <core:ListItem id="_IDGenListItem2" key="M" text="M" additionalText="Meter"/>
+                            <core:ListItem id="_IDGenListItem5" key="FT" text="FT" additionalText="Foot"/>
                         </m:ComboBox>
                     </m:HBox>
                 </t:template>
@@ -213,13 +213,13 @@
                 </t:template>
             </t:Column>
             <!-- Reefer Comply -->
-            <t:Column id="_IDGenColumn21" width="8rem">
+            <t:Column id="_IDGenColumn21" width="8rem" sortProperty="PkgReeferComply" filterProperty="PkgReeferComply">
                 <t:customData>
                     <core:CustomData key="p13nData" value='{"columnKey":"PkgReeferComply"}'></core:CustomData>
                 </t:customData>
                 <m:Label id="_IDGenLabel21" text="{i18n>reefComply}"/>
                 <t:template>
-                    <m:CheckBox id="idreefComply" editable="{= ${ReadOnly} !== 'X' }" selected="{= ${PkgReeferComply} ==='false'}" valueState="Information"></m:CheckBox>
+                    <m:CheckBox id="idreefComply" editable="{= ${ReadOnly} !== 'X' }" selected="{PkgReeferComply}" valueState="Information"></m:CheckBox>
                 </t:template>
             </t:Column>
         </t:columns>

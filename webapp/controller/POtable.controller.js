@@ -76,10 +76,9 @@ sap.ui.define([
             this._oPOTableModel.setProperty("/cValidData", cValidErr);
 
             let gettingInternalTable = this.byId("smartTable").getTable();
-            console.log("Smart Table:", gettingInternalTable); // Debugging
-
             var gettingAllRows = gettingInternalTable.getBinding().aKeys;
             var oSelIndices = gettingInternalTable.getSelectedIndices();
+
             if (oSelIndices.length === 0) {
                 MessageBox.error("Please Select the Rows");
             } else {
@@ -100,84 +99,77 @@ sap.ui.define([
             let oTable = this.byId("smartTable").getTable(); // Get sap.ui.table.Table
             let gettingAllRows = oTable.getBinding().aKeys;
             let oSelIndices = oTable.getSelectedIndices(); // Get selected rows
-            if(oSelIndices === 1){
-                for (i = 0; i < oSelIndices.length; i++) {
-                    var oFreightOrder = this.getView().getModel().getObject("/" + gettingAllRows[oSelIndices[i]]);
-                    var sFO = oFreightOrder.DbKey;
-                    var sPOPayload = {
-                        "DbKey": sFO,
-                        "TorId": oFreightOrder.TorId,
-                        "PkgQuaPcsVal": oFreightOrder.PkgQuaPcsVal,
-                        "PkgQuaPcsUni": oFreightOrder.PkgQuaPcsUni,
-                        "PkgPcsVal": oFreightOrder.PkgPcsVal,
-                        "PkgPcsUni": oFreightOrder.PkgPcsUni,
-                        "PkgLength": oFreightOrder.PkgLength,
-                        "PkgWidth": oFreightOrder.PkgWidth,
-                        "PkgHeight": oFreightOrder.PkgHeight,
-                        "PkgMeasuom": oFreightOrder.PkgMeasuom,
-                        "PkgWeiVal": oFreightOrder.PkgWeiVal,
-                        "PkgWeiUni": oFreightOrder.PkgWeiUni,
-                        "PkgId": oFreightOrder.PkgId,
-                        "PkgPickupDt": this.convertDateUTC(oFreightOrder.PkgPickupDt),
-                        "PkgReeferComply": Boolean(oFreightOrder.PkgReeferComply),
-                        "PkgSrcLoc": oFreightOrder.PkgSrcLoc
-                    };
-                    var path = "/ZC_FuTorItem(guid'" + sFO + "')";
-                    oUpdateModel.update(path, sPOPayload, {
-                        success: function (oData, response) {
-                            MessageToast.show(
-                                "Freight Unit " + oFreightOrder.TorId + " Updated successfully"
-                            );
-                            oUpdateModel.refresh(true);
-                            // that.setReadFlag(oTable,oData);
-                        },
-                        error: function (oError) {
-                            MessageToast.show(
-                                "Error " + oFreightOrder.TorId + "Update request failed"
-                            );
-                        },
-                    });
-                }
-            }else{
-                
+
+            for (i = 0; i < oSelIndices.length; i++) {
+                var oFreightOrder = this.getView().getModel().getObject("/" + gettingAllRows[oSelIndices[i]]);
+                var sFO = oFreightOrder.DbKey;
+                var sPOPayload = {
+                    "DbKey": sFO,
+                    "TorId": oFreightOrder.TorId,
+                    "PkgQuaPcsVal": oFreightOrder.PkgQuaPcsVal,
+                    "PkgQuaPcsUni": oFreightOrder.PkgQuaPcsUni,
+                    "PkgPcsVal": oFreightOrder.PkgPcsVal,
+                    "PkgPcsUni": oFreightOrder.PkgPcsUni,
+                    "PkgLength": oFreightOrder.PkgLength,
+                    "PkgWidth": oFreightOrder.PkgWidth,
+                    "PkgHeight": oFreightOrder.PkgHeight,
+                    "PkgMeasuom": oFreightOrder.PkgMeasuom,
+                    "PkgWeiVal": oFreightOrder.PkgWeiVal,
+                    "PkgWeiUni": oFreightOrder.PkgWeiUni,
+                    "PkgId": oFreightOrder.PkgId,
+                    "PkgPickupDt": this.convertDateUTC(oFreightOrder.PkgPickupDt),
+                    "PkgReeferComply": oFreightOrder.PkgReeferComply,
+                    "PkgSrcLoc": oFreightOrder.PkgSrcLoc
+                };
+                var path = "/ZC_FuTorItem(guid'" + sFO + "')";
+                oUpdateModel.update(path, sPOPayload, {
+                    success: function (oData, response) {
+                        MessageToast.show(
+                            "Freight Unit " + oFreightOrder.TorId + " Updated successfully"
+                        );
+                        // Mark row as ReadOnly (Non-Selectable)
+                        that.getView().getModel().setProperty("/" + gettingAllRows[oSelIndices[i]] + "/ReadOnly", "X");
+
+                        oUpdateModel.refresh(true);
+                        // that.clearSelect();
+                    },
+                    error: function (oError) {
+                        MessageToast.show(
+                            "Error " + oFreightOrder.TorId + "Update request failed"
+                        );
+                    },
+                });
             }
-            oTable.removeSelectionInterval(oSelIndices[i], oSelIndices[i]);
-        },
+            oTable.clearSelection();
+            oTable.getModel().refresh(true);
 
-        setReadFlag: function (oTable, oData) {
-            let oModel = this.getView().getModel();
-            let oSelectedIndices = oTable.getSelectedIndices(); // Get selected row indices
+            // Prevent selection of ReadOnly rows
+            oTable.attachRowSelectionChange(function (oEvent) {
+                let selectedIndex = oEvent.getParameter("rowIndex");
 
-            if (oSelectedIndices.length === 0) return; // No row selected
+                if (selectedIndex >= 0) {
+                    let oRowContext = oTable.getContextByIndex(selectedIndex);
+                    let oRowData = oRowContext ? oRowContext.getObject() : null;
 
-            oSelectedIndices.forEach(index => {
-                let oContext = oTable.getContextByIndex(index);
-                if (!oContext) return;
-
-                let rowData = oContext.getObject();
-                if (rowData.ReadOnly === "X") {
-                    oTable.getRows()[index].addStyleClass("readOnlyRow"); // Apply CSS class
+                    if (oRowData && oRowData.ReadOnly === "X") {
+                        MessageToast.show("This row has been updated and cannot be selected again.");
+                        oTable.setSelectionInterval(-1, -1); // Clear selection immediately
+                    }
                 }
             });
-            oTable.removeSelectionInterval(oSelIndices[i], oSelIndices[i]);
-            oModel.refresh(true); // Refresh UI to reflect changes
         },
 
-        // setReadFlag: function (oTable) {
-        //     let oModel = this.getView().getModel();
-        //     let aData = oModel.getProperty("/"); // Get all table data
-        //     // Update each row's ReadOnly property and add a class dynamically
-        //     aData.forEach(function (rowData) {
-        //         if (rowData.ReadOnly === "X") {
-        //             rowData.RowClass = "readOnlyRow"; // Add a flag in the model
-        //         } else {
-        //             rowData.RowClass = ""; // Remove class if not ReadOnly
-        //         }
-        //     });
-        //     oModel.setProperty("/", aData); // Update the model
-        //     oModel.refresh(true); // Refresh the model to reflect changes
-        //     oTable.removeSelectionInterval(oSelIndices[i], oSelIndices[i]);
-        // },
+        clearSelect: function (oTable) {
+            var oTableSelect = this.getView().byId("smartTable");
+            var oData = this.getView().getModel().getData(isEdit); // Get backend data
+
+
+            if (oData.ReadOnly === "X") {
+                oTable.setSelectionMode(sap.ui.table.SelectionMode.None); // Disable selection
+            } else {
+                oTable.setSelectionMode(sap.ui.table.SelectionMode.MultiToggle); // Enable selection
+            }
+        },
 
         openConfirmDialog: async function () {
             var aValidation = this._oPOTableModel.getProperty("/cValidData");
@@ -248,21 +240,6 @@ sap.ui.define([
             sap.ui.getCore().byId("InputWeightUnit").setValue(aFreightOrder.PkgWeiUni);
             sap.ui.getCore().byId("pkgId").setValue(aFreightOrder.PkgId);
             sap.ui.getCore().byId("inputDate").setValue(aFreightOrder.PkgPickupDt);
-
-            // var oPackageDetails = {
-            //     PackQty: sap.ui.getCore().byId("PackQty").getValue(),
-            //     PackTyp: sap.ui.getCore().byId("PackType").getValue(),
-            //     Length: sap.ui.getCore().byId("inputLength").getValue(),
-            //     Width: sap.ui.getCore().byId("inputWidth").getValue(),
-            //     Height: sap.ui.getCore().byId("inputHeight").getValue(),
-            //     DimUOM: sap.ui.getCore().byId("inputDimUnitId").getValue(),
-            //     Weight: sap.ui.getCore().byId("inputWeight").getValue(),
-            //     WeightUOM: sap.ui.getCore().byId("InputWeightUnit").getValue(),
-            //     PkgID: sap.ui.getCore().byId("pkgId").getValue(),
-            //     PickUpDate: sap.ui.getCore().byId("inputDate").getDateValue(),
-            //     LocationSrc: sap.ui.getCore().byId("inputLoc").getSelectedKey(),
-            // };
-            // console.log(oPackageDetails); // Debugging
         },
 
         onPressPackItem: function () {
@@ -302,16 +279,14 @@ sap.ui.define([
                 oFreightOrder.PkgId = PackageDetails.PkgID;
                 oFreightOrder.PkgSrcLoc = PackageDetails.LocationSrc;
                 oFreightOrder.PkgPickupDt = PackageDetails.PickUpDate;
-                // oModel.setProperty("/ZC_FuTorItem(" + "'" + oFreightOrder.DbKey + "')", oFreightOrder)
+                oModel.setProperty("/ZC_FuTorItem(" + "'" + oFreightOrder.DbKey + "')", oFreightOrder)
 
-                var aPath = "/ZC_FuTorItem('" + oFreightOrder.DbKey + "')/oFreightOrder";
-                oModel.setProperty(aPath, PackageDetails);
+                // var aPath = "/ZC_FuTorItem('" + oFreightOrder.DbKey + "')/oFreightOrder";
+                // oModel.setProperty(aPath, PackageDetails);
             }
-
             // oModel.refresh(true);
             // Close the dialog
             this.oDialogPackItem.close();
-
         },
 
 
