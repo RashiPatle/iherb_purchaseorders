@@ -9,9 +9,14 @@ sap.ui.define([
 
     return Controller.extend("com.iherb.tm.ztmiherbpurchaseorders.controller.POtable", {
         onInit() {
-            this._oCustomSelect = this.byId("_IDGenSelect");
+            // this._oCustomSelect = this.byId("_IDGenSelect");
+            // Attach event to prevent selection of ReadOnly rows
+            let oTable = this.byId("smartTable").getTable();
+            oTable.attachRowSelectionChange(this._handleRowSelection.bind(this));
+
             this._oPOTableModel = new sap.ui.model.json.JSONModel();
             this.getView().setModel(this._oPOTableModel, "POTableModel");
+            // this.getView().getModel("POTableModel").setSizeLimit(500);
 
             this._oPkgModel = new sap.ui.model.json.JSONModel();
             this.getView().setModel(this._oPkgModel, "PkgModel");
@@ -22,6 +27,21 @@ sap.ui.define([
             // this.onReadPackOdata();
         },
 
+        _handleRowSelection: function (oEvent) {
+            let oTable = this.byId("smartTable").getTable();
+            let selectedIndex = oEvent.getParameter("rowIndex");
+        
+            if (selectedIndex >= 0) {
+                let oRowContext = oTable.getContextByIndex(selectedIndex);
+                let oRowData = oRowContext ? oRowContext.getObject() : null;
+        
+                if (oRowData && oRowData.ReadOnly === "X") {
+                    MessageToast.show("This row has been updated and cannot be selected again.");
+                    oTable.setSelectionInterval(-1, -1); // Clear selection immediately
+                }
+            }
+        },
+
         onReadOdata: function () {
             var that = this;
             var oDataModel = this.getOwnerComponent().getModel();
@@ -29,6 +49,7 @@ sap.ui.define([
                 success: function (oData) {
                     sap.ui.core.BusyIndicator.hide();
                     this._oPOTableModel.setData(oData);
+                   
                     console.log("PO OData loaded/Response:", oData);
                     // Store the fetched data in POTableModel
                     that._oPOTableModel.setData({ FreightOrders: oData.results });
@@ -66,8 +87,17 @@ sap.ui.define([
         },
 
         onRefresh: function () {
-            this.byId("smartTable").rebindTable();
-        },
+            let oTable = this.byId("smartTable");
+            let oModel = this.getView().getModel();
+        
+            if (oModel) {
+                oModel.refresh(true); // Force full data reload
+            }
+        
+            if (oTable) {
+                oTable.rebindTable(); // Rebind table to fetch latest data
+            }
+        },        
 
         onSubmitPress: function () {
             var i;
@@ -127,9 +157,6 @@ sap.ui.define([
                         MessageToast.show(
                             "Freight Unit " + oFreightOrder.TorId + " Updated successfully"
                         );
-                        // Mark row as ReadOnly (Non-Selectable)
-                        that.getView().getModel().setProperty("/" + gettingAllRows[oSelIndices[i]] + "/ReadOnly", "X");
-
                         oUpdateModel.refresh(true);
                         // that.clearSelect();
                     },
@@ -142,21 +169,6 @@ sap.ui.define([
             }
             oTable.clearSelection();
             oTable.getModel().refresh(true);
-
-            // Prevent selection of ReadOnly rows
-            oTable.attachRowSelectionChange(function (oEvent) {
-                let selectedIndex = oEvent.getParameter("rowIndex");
-
-                if (selectedIndex >= 0) {
-                    let oRowContext = oTable.getContextByIndex(selectedIndex);
-                    let oRowData = oRowContext ? oRowContext.getObject() : null;
-
-                    if (oRowData && oRowData.ReadOnly === "X") {
-                        MessageToast.show("This row has been updated and cannot be selected again.");
-                        oTable.setSelectionInterval(-1, -1); // Clear selection immediately
-                    }
-                }
-            });
         },
 
         clearSelect: function (oTable) {
@@ -346,35 +358,36 @@ sap.ui.define([
             var iYear = sDate.getUTCFullYear();
             var iMonth = sDate.getUTCMonth();
             var iDay = sDate.getUTCDate();
-            var iHour = sDate.getUTCHours();
-            var iMinute = sDate.getUTCMinutes();
-            var dDate = new Date(Date.UTC(iYear, iMonth, iDay, iHour, iMinute));
+            var dDate = new Date(Date.UTC(iYear, iMonth, iDay));
             return dDate;
         },
 
-        onRowSelect: function () {
-            var gettingInternalTable = this.byId("smartTable").getTable();
-            var oSelIndices = gettingInternalTable.getSelectedIndices();
-            if (oSelIndices.length <= 1) {
-                this.getView().byId("idPacktogether").setVisible(false);
-            } else {
-                this.getView().byId("idPacktogether").setVisible(true);
-            }
-        },
+        // onRowSelect: function () {
+        //     var gettingInternalTable = this.byId("smartTable").getTable();
+        //     var oSelIndices = gettingInternalTable.getSelectedIndices();
+        //     if (oSelIndices.length <= 1) {
+        //         this.getView().byId("idPacktogether").setVisible(false);
+        //     } else {
+        //         this.getView().byId("idPacktogether").setVisible(true);
+        //     }
+        // },
 
-        onBeforeRebindTable: function (oEvent) {
-            var mBindingParams = oEvent.getParameter("bindingParams");
-            var sSelectValue = this._oCustomSelect.getSelectedKey();
-            if (sSelectValue) {
-                mBindingParams.filters.push(
-                    new Filter(
-                        "PkgSrcLoc",
-                        FilterOperator.EQ,
-                        sSelectValue
-                    )
-                );
-            }
-        }
+        // onBeforeRebindTable: function (oEvent) {
+        //     var mBindingParams = oEvent.getParameter("bindingParams");
+        //     var sSelectValue = this._oCustomSelect.getSelectedKey();
+        //     if (sSelectValue) {
+        //         mBindingParams.filters.push(
+        //             new Filter(
+        //                 "PkgSrcLoc",
+        //                 FilterOperator.EQ,
+        //                 sSelectValue
+        //             )
+        //         );
+        //     }
+        // }
+
+
+
         // **************************
     });
 });

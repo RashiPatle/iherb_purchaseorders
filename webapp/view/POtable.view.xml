@@ -7,46 +7,37 @@
     xmlns:f="sap.f"
     xmlns="sap.uxap"
     xmlns:layout="sap.ui.layout"
+    xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
     xmlns:customData="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
     xmlns:m="sap.m">
-    <m:Page id="page" showHeader="false" enableScrolling="false">
-        <smartFilterBar:SmartFilterBar id="smartFilterBar" entitySet="ZC_FuTorItem" showFilterConfiguration="false">
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration1" key="BaseBtdId" label="{i18n>PurchaseOrderLabel}" visibleInAdvancedArea="true" />
-                <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration5" key="PkgId" label="{i18n>packageid}" visibleInAdvancedArea="true" />
-                <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration3" key="PkgPickupDt" label="{i18n>PickUpLabel}" visibleInAdvancedArea="true" />
-                <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration2" key="PkgSrcLoc" label="{i18n>POpickuplocation}" visibleInAdvancedArea="true">
-                    <smartFilterBar:customControl>
-                        <m:Select id="_IDGenSelect" customData:hasValue="true" items="{path:'/ZI_PARTNER_LOC'}">
-                            <core:Item id="_IDGenItem" key="{Location}" text="{LocDescr}"></core:Item>
-                        </m:Select>
-                    </smartFilterBar:customControl>
-                </smartFilterBar:ControlConfiguration>
-                <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration6" key="TorId" visible="false" />
-                <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration7" key="PkgPcsVal" visible="false" />
-                <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration8" key="PkgPcsUni" visible="false" />
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:layoutData>
-                <m:FlexItemData id="_IDGenFlexItemData1" shrinkFactor="0" />
-            </smartFilterBar:layoutData>
-        </smartFilterBar:SmartFilterBar>
-        <smartTable:SmartTable id="smartTable" tableType="Table" entitySet="ZC_FuTorItem" tableBindingPath="/ZC_FuTorItem" beforeRebindTable="onBeforeRebindTable" useTablePersonalisation="true" enableAutoBinding="true" showFullScreenButton="true" smartFilterId="smartFilterBar" header="{i18n>PurchaseOrderLabel}" showRowCount="true" persistencyKey="SmartTableRefApp_Explored" beforeExport="onBeforeExport" useVariantManagement="false" placeToolbarInTable="true" demandPopin="false" enableAutoColumnWidth="true" enableExport="true" ignoredFields="DesLoc,DesLocIdTrq,Length,Width,Height,Measuom" ignoreFromPersonalisation="DesLoc,DesLocIdTrq,Length,Width,Height,Measuom" requestAtLeastFields="DbKey,ParentKey,ReadOnly,BaseBtdId,TorId,ItemId,ProductId,ItemDescr,QuaPcsVal,QuaPcsUni,PkgQuaPcsVal,SrcLocDescr,PickupDt,DesLocDescr,DeliveryDt,PkgQuaPcsUni,PkgPcsVal,PkgPcsUni,PkgLength,PkgWidth,PkgHeight,PkgMeasuom,PkgWeiVal,PkgWeiUni,PkgId,PkgPickupDt,SrcLoc,SrcLocDescr,PkgSrcLoc,PkgReeferComply">
-            <smartTable:customToolbar>
-                <m:OverflowToolbar id="idToolbar" design="Transparent">
-                    <!-- <m:IconTabBar id="_IDGenIconTabBar">
-                        <m:items>
-                            <m:IconTabFilter id="_IDGenIconTabFilter" icon="sap-icon://begin" iconColor="Positive"/>
-                        </m:items>
-                    </m:IconTabBar> -->
-                    <m:ToolbarSpacer id="idToolbarSpace" />
-                    <m:OverflowToolbarButton id="idRefresh" icon="sap-icon://refresh" tooltip="Refresh" press="onRefresh" visible="true" />
-                </m:OverflowToolbar>
-            </smartTable:customToolbar>
-            <core:Fragment fragmentName="com.iherb.tm.ztmiherbpurchaseorders.fragment.tableExt" id="FragmentPOtable" type="XML" />
-            <smartTable:layoutData>
-                <m:FlexItemData id="_IDGenFlexItemData2" growFactor="1" baseSize="0%" />
-            </smartTable:layoutData>
-        </smartTable:SmartTable>
+    <m:Page id="page" showHeader="false" enableScrolling="true">
+        <m:VBox id="_IDGenVBox" fitContainer="true">
+            <smartFilterBar:SmartFilterBar id="smartFilterBar" entitySet="ZC_FuTorItem" showFilterConfiguration="true">
+                <smartFilterBar:controlConfiguration>
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration1" key="BaseBtdId" label="{i18n>PurchaseOrderLabel}" visibleInAdvancedArea="true" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration5" key="PkgId" label="{i18n>packageid}" visibleInAdvancedArea="true" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration3" key="PkgPickupDt" label="{i18n>PickUpLabel}" visibleInAdvancedArea="true" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration6" key="TorId" visible="false" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration7" key="PkgPcsVal" visible="false" />
+                    <smartFilterBar:ControlConfiguration id="_IDGenControlConfiguration8" key="PkgPcsUni" visible="false" />
+                </smartFilterBar:controlConfiguration>
+                <smartFilterBar:layoutData>
+                    <m:FlexItemData id="_IDGenFlexItemData1" shrinkFactor="0" />
+                </smartFilterBar:layoutData>
+            </smartFilterBar:SmartFilterBar>
+            <smartTable:SmartTable id="smartTable" tableType="Table" entitySet="ZC_FuTorItem" tableBindingPath="/ZC_FuTorItem" beforeRebindTable="onBeforeRebindTable" useTablePersonalisation="true" enableAutoBinding="true" smartFilterId="smartFilterBar" header="{i18n>PurchaseOrderLabel}" showRowCount="true" persistencyKey="SmartTableRefApp_Explored" beforeExport="onBeforeExport" useVariantManagement="true" placeToolbarInTable="true" class="sapUiResponsiveContentPadding" enableAutoColumnWidth="true" editTogglable="true" app:useSmartToggle="true" enableExport="true" ignoredFields="DesLoc,DesLocIdTrq,Length,Width,Height,Measuom" ignoreFromPersonalisation="DesLoc,DesLocIdTrq,Length,Width,Height,Measuom" requestAtLeastFields="DbKey,ParentKey,ReadOnly,BaseBtdId,TorId,ItemId,ProductId,ItemDescr,QuaPcsVal,QuaPcsUni,PkgQuaPcsVal,SrcLocDescr,PickupDt,DesLocDescr,DeliveryDt,PkgQuaPcsUni,PkgPcsVal,PkgPcsUni,PkgLength,PkgWidth,PkgHeight,PkgMeasuom,PkgWeiVal,PkgWeiUni,PkgId,PkgPickupDt,SrcLoc,SrcLocDescr,PkgSrcLoc,PkgReeferComply">
+                <smartTable:customToolbar>
+                    <m:OverflowToolbar id="idToolbar" design="Transparent">
+                        <m:ToolbarSpacer id="idToolbarSpace" />
+                        <m:OverflowToolbarButton id="idRefresh" icon="sap-icon://refresh" tooltip="Refresh" press="onRefresh" visible="true" />
+                    </m:OverflowToolbar>
+                </smartTable:customToolbar>
+                <core:Fragment fragmentName="com.iherb.tm.ztmiherbpurchaseorders.fragment.tableExt" id="FragmentPOtable" type="XML" />
+                <smartTable:layoutData>
+                    <m:FlexItemData id="_IDGenFlexItemData2" growFactor="1" baseSize="0%" />
+                </smartTable:layoutData>
+            </smartTable:SmartTable>
+        </m:VBox>
         <m:footer>
             <m:Toolbar id="toolbar2">
                 <m:content>

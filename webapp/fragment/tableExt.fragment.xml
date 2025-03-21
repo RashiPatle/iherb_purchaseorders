@@ -5,7 +5,7 @@
     xmlns:smartField="sap.ui.comp.smartfield"
     xmlns:t="sap.ui.table"
     xmlns:smartTable="sap.ui.comp.smarttable">
-    <t:Table id="idPOTable" selectionMode="Multi" selectionBehavior="Row" alternateRowColors="true">
+    <t:Table id="idPOTable" selectionMode="Multi" rowMode="Auto" selectionBehavior="Row">
         <t:columns>
             <t:Column id="_IDGenColumn2" width="8rem" sortProperty="BaseBtdId" filterProperty="BaseBtdId" sorted="true" sortOrder="Descending">
                 <t:customData>
