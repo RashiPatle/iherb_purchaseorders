@@ -10,7 +10,7 @@
                         <Label id="_IDGenLabel6" text="{i18n>packageQty}"/>
                         <Input id="PackQty" type="Number" required="true"/>
                         <Label id="_IDGenLabel1" text="{i18n>packageType}"/>
-                        <ComboBox id="PackType" showSecondaryValues="true" required="true"/>
+                        <ComboBox id="PackType" showSecondaryValues="true" required="true"></ComboBox>
                         <Label id="_IDGenLabel9" text="{i18n>dimensions}"/>
                         <Input id="inputLength" type="Number" required="true">
                         </Input>
@@ -18,11 +18,13 @@
                         </Input>
                         <Input id="inputHeight" type="Number" required="true">
                         </Input>
-                        <ComboBox id="inputDimUnitId" showSecondaryValues="true" required="true">
-                        </ComboBox>
+                        <ComboBox id="inputDimUnitId" showSecondaryValues="true" required="true"></ComboBox>
                         <Label id="_IDGenLabel10" text="{i18n>weight}"/>
                         <Input id="inputWeight" type="Number" required="true"/>
                         <ComboBox id="InputWeightUnit" showSecondaryValues="true" required="true">
+                            <core:ListItem id="_IDGenListItem8" key="LB" text="LB" additionalText="Pound"/>
+                            <core:ListItem id="_IDGenListItem9" key="G" text="G" additionalText="Gram"/>
+                            <core:ListItem id="_IDGenListItem10" key="KG" text="KG" additionalText="Kilogram"/>
                         </ComboBox>
                         <Label id="_IDGenLabel22" text="{i18n>packageid}"/>
                         <Input id="pkgId" type="Number" required="true"/>
@@ -30,7 +32,7 @@
                         <Label id="_IDGenLabel11" text="{i18n>pickupLoc}"/>
                         <Select id="inputLoc" required="true"/>
                         <Label id="_IDGenLabel18" text="{i18n>pickupdate}"/>
-                        <DatePicker id="inputDate" valueFormat="{MM/dd/yyyy,type: 'sap.ui.model.type.DateTime'}" displayFormat="MM/dd/yyyy" required="true"/>
+                        <DatePicker id="inputDate" valueFormat="{MM/dd/yyyy, type:'sap.ui.model.type.Date'}" displayFormat="MM/dd/yyyy" required="true"/>
                     </form:content>
                     <form:title>
                         <core:Title text="{i18n>poDetails}" id="title15"/>
