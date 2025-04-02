@@ -130,7 +130,7 @@ sap.ui.define([
                         "PkgWeiVal": oFreightOrder.PkgWeiVal,
                         "PkgWeiUni": oFreightOrder.PkgWeiUni,
                         "PkgId": oFreightOrder.PkgId,
-                        "PkgPickupDt": oFreightOrder.PkgPickupDt,
+                        "PkgPickupDt": that.convertDateUTC(oFreightOrder.PkgPickupDt), // Updated value
                         "PkgReeferComply": oFreightOrder.PkgReeferComply,
                         "PkgSrcLoc": oFreightOrder.PkgSrcLoc
                     };
@@ -311,17 +311,17 @@ sap.ui.define([
             }
 
             // Get DatePicker Value
+            debugger
             var oDatePicker = this.getView().byId("_IDGenDatePicker");
             var sSelectedDate = oDatePicker.getDateValue();
             if (sSelectedDate) {
-                // Extract local date values
-                var iYear = sSelectedDate.getFullYear();
-                var iMonth = String(sSelectedDate.getMonth() + 1).padStart(2, "0"); // Month is 0-based
-                var iDay = String(sSelectedDate.getDate()).padStart(2, "0");
-
-                var sFormattedDate = `${iMonth}/${iDay}/${iYear}`; // YYYY-MM-DD format
-
-                var oFilterDate = new sap.ui.model.Filter("PickUpDate", sap.ui.model.FilterOperator.Contains, sFormattedDate);
+                // Convert to match model format
+                var sFormattedDate = new Date(sSelectedDate).toDateString(); // Example: "Thu Mar 27 2025"
+            
+                console.log("Formatted Date for Filter:", sFormattedDate);
+            
+                // Apply the filter
+                var oFilterDate = new sap.ui.model.Filter("PkgPickupDt", sap.ui.model.FilterOperator.EQ, sFormattedDate);
                 aFilters.push(oFilterDate);
             }
 
@@ -412,6 +412,18 @@ sap.ui.define([
         onMultipleConditionsAfterClose: function () {
             this._oMultipleConditionsDialog.destroy();
         },
+
+        convertDateUTC: function (sDate) {
+            var iYear = sDate.getUTCFullYear();
+            var iMonth = sDate.getUTCMonth();
+            var iDay = sDate.getUTCDate();
+            var iHour = sDate.getUTCHours();
+            var iMinute = sDate.getUTCMinutes();
+            var dDate = new Date(Date.UTC(iYear, iMonth, iDay, iHour, iMinute));
+            return dDate;
+        },
+
+
 
 
         // **************************END

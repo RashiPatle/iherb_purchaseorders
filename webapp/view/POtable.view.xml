@@ -235,7 +235,7 @@
                         </t:customData>
                         <m:Label id="idLabPickup18" text="{i18n>pickupdate}" required="true"/>
                         <t:template>
-                            <m:DatePicker id="pickUpDateId" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path: 'POTableModel>PkgPickupDt',type: 'sap.ui.model.type.DateTime', formatOptions: {pattern: 'yyyy-MM-dd HH:mm'}}"/>
+                            <m:DatePicker id="pickUpDateId" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path: 'POTableModel>PkgPickupDt',type: 'sap.ui.model.type.DateTime', formatOptions: {pattern: 'MM/dd/yyyy HH:mm'}}"/>
                         </t:template>
                     </t:Column>
                     <!-- Pick up Location -->
