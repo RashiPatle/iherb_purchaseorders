@@ -25,8 +25,7 @@
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem4" name="C" label="{i18n>PickUpLabel}" groupName="Group1" visibleInFilterBar="true">
                         <fb:control>
-                            <m:DatePicker id="_IDGenDatePicker" displayFormat="{MM/dd/yyyy}" width="100%">
-                            </m:DatePicker>
+                            <m:DatePicker id="_IDGenDatePicker" width="100%"></m:DatePicker>
                         </fb:control>
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem1" name="D" label="{i18n>POpickuplocation}" groupName="Group1" visibleInFilterBar="true">
@@ -43,7 +42,7 @@
             </fb:FilterBar>
         </m:VBox>
         <m:content>
-            <t:Table id="idPOTable" rows="{path:'POTableModel>/list', sorter:{path: 'BaseBtdId', descending:true}}" threshold="100" rowMode="Auto" showNoData="false" selectionMode="Multi" selectionBehavior="Row" alternateRowColors="true">
+            <t:Table id="idPOTable" rows="{path:'POTableModel>/list', sorter:{path: 'BaseBtdId', descending:true}}" rowMode="Interactive" showNoData="false" selectionMode="Multi" selectionBehavior="Row" alternateRowColors="true">
                 <t:extension>
                     <m:OverflowToolbar id="_IDGenOverflowToolbar">
                         <m:Title id="_IDGenTitle1" text="Purchase Order ({=${POTableModel>/list}.length})" titleStyle="H3" class="sapUiTinyMarginBeginEnd"/>
@@ -115,13 +114,16 @@
                         </t:template>
                     </t:Column>
                     <!-- PO Pickup Date (time zone maintain ) -->
-                    <t:Column id="_IDGenColumn9" width="9rem" sortProperty="PickupDt" filterProperty="PickupDt">
+                    <t:Column id="_IDGenColumn9" width="12rem" sortProperty="PickupDt" filterProperty="PickupDt">
                         <t:customData>
                             <core:CustomData key="p13nData" />
                         </t:customData>
                         <m:Label id="idLabPickup9" text="{i18n>PoPickupDt}" />
                         <t:template>
-                            <m:Text id="idPoPickDt9" text="{path:'POTableModel>PickupDt',type: 'sap.ui.model.type.DateTime', formatOptions: {'pattern': 'MM/dd/yyyy HH:mm'}}"></m:Text>
+                            <m:HBox id="_IDGenHBox">
+                                <m:Text id="idPoPickDt9" class="sapUiSmallMarginEnd" text="{path:'POTableModel>PickupDtCST'}"></m:Text>
+                                <m:Text id="_IDGenText1" text="{path:'POTableModel>SrcTzone'}"></m:Text>
+                            </m:HBox>
                         </t:template>
                     </t:Column>
                     <!-- PO Destination Location -->
@@ -135,13 +137,16 @@
                         </t:template>
                     </t:Column>
                     <!-- Po Delivery Date -->
-                    <t:Column id="_IDGenColumn11" width="9rem" sortProperty="DeliveryDt" filterProperty="DeliveryDt">
+                    <t:Column id="_IDGenColumn11" width="12rem" sortProperty="DeliveryDt" filterProperty="DeliveryDt">
                         <t:customData>
                             <core:CustomData key="p13nData" />
                         </t:customData>
                         <m:Label id="idLabPickup11" text="{i18n>PoDeliDt}" />
                         <t:template>
-                            <m:Text id="idPoDeliveryDt11" text="{path:'POTableModel>DeliveryDt',type: 'sap.ui.model.type.DateTime', formatOptions: {'pattern': 'MM/dd/yyyy HH:mm'}}"></m:Text>
+                            <m:HBox id="_IDGenHBox6">
+                                <m:Text id="idPoDeliveryDt11" class="sapUiSmallMarginEnd" text="{path:'POTableModel>DeliveryDtPST'}"></m:Text>
+                                <m:Text id="_IDGenText9" text="{POTableModel>DesTzone}"></m:Text>
+                            </m:HBox>
                         </t:template>
                     </t:Column>
                     <!-- Confirm Quantity $$$$$$$$$$$$$$$$$$$$editttt$$$$$$$$$$$$$$$$$$$$$$$$$$$-->

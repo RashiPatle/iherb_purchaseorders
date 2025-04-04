@@ -1,22 +1,19 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
-    "sap/m/MessageBox",
     "sap/m/MessageToast",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/ui/core/Fragment",
     "sap/ui/core/date/UI5Date",
     "sap/ui/core/format/DateFormat",
-    "sap/ui/model/type/String",
-    "sap/m/Token"
-], (Controller, MessageBox, MessageToast, Filter, FilterOperator, DateFormat, TypeString, Token) => {
+    'sap/ui/model/type/DateTime',
+], (Controller, MessageToast, Filter, FilterOperator, DateFormat, TypeDateTime) => {
     "use strict";
 
     return Controller.extend("com.iherb.tm.ztmiherbpurchaseorders.controller.POtable", {
         onInit() {
             var oTable = this.byId("idPOTable");
             oTable.attachRowSelectionChange(this._handleRowSelection.bind(this));
-
             this._oPOTableModel = new sap.ui.model.json.JSONModel();
             this.getView().setModel(this._oPOTableModel, "POTableModel");
             this.getView().getModel("POTableModel").setSizeLimit(500);
@@ -35,20 +32,57 @@ sap.ui.define([
                 },
                 success: function (oData) {
                     sap.ui.core.BusyIndicator.hide();
+                    if (oData.results) {
+                        oData.results.forEach(item => {
+                            if (item.PickupDt) {
+                                let utcDate = new Date(item.PickupDt);
+                                // Convert UTC to CST in 24-hour format
+                                let cstDate = utcDate.toLocaleString("en-US", {
+                                    timeZone: "America/Chicago",
+                                    hour12: false,
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit"
+                                }).replace(",", "");
+                                item.PickupDtCST = cstDate;
+                            }
+                        });
+                    }
+                    if (oData.results) {
+                        oData.results.forEach(item => {
+                            if (item.DeliveryDt) {
+                                let utcDate = new Date(item.DeliveryDt);
+                                // Convert UTC to PST in 24-hour format
+                                let pstDate = utcDate.toLocaleString("en-US", {
+                                    timeZone: "America/Los_Angeles",
+                                    hour12: false,
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit"
+                                }).replace(",", "");
+                                item.DeliveryDtPST = pstDate;
+                            }
+                        });
+                    }
                     oModel.setProperty("/list", oData.results);
                     oModel.setSizeLimit(oData.results.length);
-                    oModel.setProperty("/OriginalList", oData.results); // Store original data for filter 
+                    oModel.setProperty("/OriginalList", oData.results);
                     console.log("PO OData loaded/Response:", oData);
-                    // this.onAfterODataLoad();
+                    console.log("Updated PO Data with CST Date:", oData);
                 }.bind(this),
-                error: function (oerror) {
+                error: function (oError) {
                     sap.ui.core.BusyIndicator.hide();
-                    console.log("PO data not loaded", oerror);
+                    console.log("PO data not loaded", oError);
                 }.bind(this),
             });
             oDataModel.read("/ZI_PARTNER_LOC", {
                 success: function (oData) {
-                    // Store fetched locations in a separate JSON model
                     var oLocationModel = new sap.ui.model.json.JSONModel(oData.results);
                     that.getView().setModel(oLocationModel, "LocationModel");
                 },
@@ -80,13 +114,11 @@ sap.ui.define([
             this.byId("_IDGenMultiComboBox").setSelectedKeys([]);
             var oTable = this.getView().byId("idPOTable");
             var oBinding = oTable.getBinding("rows");
-
             if (oBinding) {
                 oBinding.filter([]);
             }
             var oModel = this.getView().getModel("POTableModel");
             var aOriginalList = oModel.getProperty("/OriginalList");
-
             if (aOriginalList) {
                 oModel.setProperty("/list", aOriginalList);
                 this.byId("_IDGenTitle1").setText("Purchase Order (" + aOriginalList.length + ")");
@@ -106,6 +138,15 @@ sap.ui.define([
             var oTable = this.byId("idPOTable");
             let gettingAllRows = oTable.getBinding().aIndices;
             let oSelIndices = oTable.getSelectedIndices();
+            // let oLocationModel = this.getView().getModel("LocationModel");
+
+            // if (!oLocationModel) {
+            //     sap.ui.core.BusyIndicator.hide();
+            //     console.error("LocationModel not found");
+            //     sap.m.MessageBox.error("Location data not available.");
+            //     return;
+            // }
+            // let aLocations = oLocationModel.getData(); // Fetch location data
 
             if (oSelIndices.length === 0) {
                 sap.ui.core.BusyIndicator.hide();
@@ -116,6 +157,13 @@ sap.ui.define([
                     var oContext = oTable.getContextByIndex(oSelIndices[i]);
                     var oFreightOrder = oContext.getObject();
                     var sFO = oFreightOrder.DbKey;
+                    // debugger
+                    // // Find corresponding location's time zone
+                    // let oSelectedLocation = aLocations.find(loc => loc.Location === oFreightOrder.PkgSrcLoc);
+                    // if (oSelectedLocation) {
+                    //     oFreightOrder.PkgPickupDt = this.convertToTimeZone(oFreightOrder.PkgPickupDt, oSelectedLocation.Tzone);
+                    // }
+
                     var sPOPayload = {
                         "DbKey": sFO,
                         "TorId": oFreightOrder.TorId,
@@ -243,7 +291,6 @@ sap.ui.define([
             let gettingAllRows = oTable.getBinding().aIndices;
             let oSelIndices = oTable.getSelectedIndices();
             let oModel = this.getView().getModel();
-
             var PackageDetails = {
                 PackQty: sap.ui.getCore().byId("PackQty").getValue(),
                 PackTyp: sap.ui.getCore().byId("PackType").getValue(),
@@ -257,7 +304,6 @@ sap.ui.define([
                 PickUpDate: sap.ui.getCore().byId("inputDate").getDateValue(),
                 LocationSrc: sap.ui.getCore().byId("inputLoc").getSelectedKey(),
             };
-
             for (let i = 0; i < oSelIndices.length; i++) {
                 var oContext = oTable.getContextByIndex(oSelIndices[i]);
                 var oData = oContext.getObject();
@@ -282,15 +328,12 @@ sap.ui.define([
             var oMultiInput1 = this.byId("multipleConditions1");
             var oMultiInput2 = this.byId("multipleConditions2");
             var aFilters = [];
-
             if (oMultiInput1) {
                 var aTokens1 = oMultiInput1.getTokens();
                 if (aTokens1.length > 0) {
                     var aProductIDs = aTokens1.map(token => token.getText().replace(/\*/g, ""));
                     console.log("Extracted Product IDs:", aProductIDs);
-                    // Create individual filters for each selected value
                     var aProductFilters = aProductIDs.map(id => new Filter("BaseBtdId", FilterOperator.EQ, id));
-                    // Combine filters using OR condition
                     var oFinalFilter = new sap.ui.model.Filter(aProductFilters, false);
                     aFilters.push(oFinalFilter);
                 }
@@ -310,25 +353,8 @@ sap.ui.define([
                 console.error("MultiInput2 is null");
             }
 
-            // Get DatePicker Value
-            debugger
-            var oDatePicker = this.getView().byId("_IDGenDatePicker");
-            var sSelectedDate = oDatePicker.getDateValue();
-            if (sSelectedDate) {
-                // Convert to match model format
-                var sFormattedDate = new Date(sSelectedDate).toDateString(); // Example: "Thu Mar 27 2025"
-            
-                console.log("Formatted Date for Filter:", sFormattedDate);
-            
-                // Apply the filter
-                var oFilterDate = new sap.ui.model.Filter("PkgPickupDt", sap.ui.model.FilterOperator.EQ, sFormattedDate);
-                aFilters.push(oFilterDate);
-            }
-
-            //  Get MultiComboBox for Pickup Location
             var oMultiComboBox = this.getView().byId("_IDGenMultiComboBox");
             var aSelectedItems = oMultiComboBox ? oMultiComboBox.getSelectedItems() : [];
-
             if (aSelectedItems.length > 0) {
                 var aLocations = aSelectedItems.map(item => item.getKey());
                 var oFilter3 = new sap.ui.model.Filter({
@@ -338,15 +364,17 @@ sap.ui.define([
                 aFilters.push(oFilter3);
             }
 
+            var sDate = this.byId("_IDGenDatePicker").getDateValue();
+            if (sDate) {
+                aFilters.push(new sap.ui.model.Filter("PkgPickupDt", sap.ui.model.FilterOperator.EQ, sDate));
+            }
+
             var oBinding = oTable.getBinding("rows");
             if (oBinding) {
                 oBinding.filter(aFilters);
-                console.log("Filters applied to table!");
-                oBinding.refresh(true); // Ensure data refreshes
-
+                oBinding.refresh(true);
                 setTimeout(() => {
-                    var iFilteredCount = oBinding.getLength(); // Get visible rows count
-                    console.log("Filtered Row Count:", iFilteredCount);
+                    var iFilteredCount = oBinding.getLength();
                     this.getView().byId("_IDGenTitle1").setText("Purchase Order (" + iFilteredCount + ")");
                 }, 100);
             } else {
@@ -354,13 +382,10 @@ sap.ui.define([
             }
         },
 
-
         onMultipleConditionsVHRequested: function (oEvent) {
             var oSource = oEvent.getSource(); // Get the triggering MultiInput
             this._oMultipleConditionsInput = oSource; // Store reference for later use
-
             var oResourceBundle = this.getView().getModel("i18n").getResourceBundle();
-
             // Determine the label and key based on the clicked field
             var sLabel, sKey;
             if (oSource.getId().includes("multipleConditions1")) {
@@ -370,13 +395,11 @@ sap.ui.define([
                 sLabel = oResourceBundle.getText("packageid");
                 sKey = "PkgId";
             }
-
             this.loadFragment({
                 name: "com.iherb.tm.ztmiherbpurchaseorders.fragment.ValueHelpDialogMultipleConditions"
             }).then(function (oMultipleConditionsDialog) {
                 this._oMultipleConditionsDialog = oMultipleConditionsDialog;
                 this.getView().addDependent(oMultipleConditionsDialog);
-
                 if (oMultipleConditionsDialog) {
                     oMultipleConditionsDialog.setRangeKeyFields([
                         {
@@ -385,7 +408,6 @@ sap.ui.define([
                             type: "string",
                         }
                     ]);
-
                     oMultipleConditionsDialog.setTokens(oSource.getTokens());
                     oMultipleConditionsDialog.open();
                 } else {
@@ -396,14 +418,12 @@ sap.ui.define([
 
         onMultipleConditionsValueHelpOkPress: function (oEvent) {
             var aTokens = oEvent.getParameter("tokens");
-
             if (this._oMultipleConditionsInput) {
                 this._oMultipleConditionsInput.removeAllTokens(); // Clear old tokens
                 this._oMultipleConditionsInput.setTokens(aTokens); // Set new tokens
             } else {
                 console.error("Error: _oMultipleConditionsInput is null");
             }
-
             this._oMultipleConditionsDialog.close();
         },
         onMultipleConditionsCancelPress: function () {
@@ -412,7 +432,6 @@ sap.ui.define([
         onMultipleConditionsAfterClose: function () {
             this._oMultipleConditionsDialog.destroy();
         },
-
         convertDateUTC: function (sDate) {
             var iYear = sDate.getUTCFullYear();
             var iMonth = sDate.getUTCMonth();
@@ -422,10 +441,7 @@ sap.ui.define([
             var dDate = new Date(Date.UTC(iYear, iMonth, iDay, iHour, iMinute));
             return dDate;
         },
-
-
-
-
+       
         // **************************END
     });
 });
