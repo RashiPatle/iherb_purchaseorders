@@ -138,15 +138,6 @@ sap.ui.define([
             var oTable = this.byId("idPOTable");
             let gettingAllRows = oTable.getBinding().aIndices;
             let oSelIndices = oTable.getSelectedIndices();
-            // let oLocationModel = this.getView().getModel("LocationModel");
-
-            // if (!oLocationModel) {
-            //     sap.ui.core.BusyIndicator.hide();
-            //     console.error("LocationModel not found");
-            //     sap.m.MessageBox.error("Location data not available.");
-            //     return;
-            // }
-            // let aLocations = oLocationModel.getData(); // Fetch location data
 
             if (oSelIndices.length === 0) {
                 sap.ui.core.BusyIndicator.hide();
@@ -157,12 +148,6 @@ sap.ui.define([
                     var oContext = oTable.getContextByIndex(oSelIndices[i]);
                     var oFreightOrder = oContext.getObject();
                     var sFO = oFreightOrder.DbKey;
-                    // debugger
-                    // // Find corresponding location's time zone
-                    // let oSelectedLocation = aLocations.find(loc => loc.Location === oFreightOrder.PkgSrcLoc);
-                    // if (oSelectedLocation) {
-                    //     oFreightOrder.PkgPickupDt = this.convertToTimeZone(oFreightOrder.PkgPickupDt, oSelectedLocation.Tzone);
-                    // }
 
                     var sPOPayload = {
                         "DbKey": sFO,
@@ -433,6 +418,7 @@ sap.ui.define([
             this._oMultipleConditionsDialog.destroy();
         },
         convertDateUTC: function (sDate) {
+            debugger
             var iYear = sDate.getUTCFullYear();
             var iMonth = sDate.getUTCMonth();
             var iDay = sDate.getUTCDate();
@@ -441,7 +427,115 @@ sap.ui.define([
             var dDate = new Date(Date.UTC(iYear, iMonth, iDay, iHour, iMinute));
             return dDate;
         },
-       
+
+        onLocationChange: function (oEvent) {
+            debugger
+            var that = this;
+            var oDateTimePicker = this.getView().byId("pickUpDateId");
+            var oTableModel = this.getView().getModel("POTableModel");
+            var oLocationModel = this.getView().getModel("LocationModel");
+            var oTable = this.getView().byId("idPOTable");
+            var aSelectedIndices = oTable.getSelectedIndices();
+            if (aSelectedIndices.length === 0) {
+                sap.m.MessageToast.show("Please select a row first.");
+                this.onRefresh();
+                return;
+            }
+            var oContext = oTable.getContextByIndex(aSelectedIndices[0]);  // Get selected row context
+            var oSelectedRow = oContext.getObject();
+            var sSelectedDate = oSelectedRow.PkgPickupDt;    // Get PkgPickupDt (Local Browser Time)
+            if (!sSelectedDate) {
+                sap.m.MessageToast.show("No date found in selected row.");
+                return;
+            }
+            var selectedDate = new Date(sSelectedDate);  // Convert string to Date object
+            if (isNaN(selectedDate)) {
+                console.error("Invalid date:", sSelectedDate);
+                return;
+            }
+            var dUTCDate = this.convertToUTC(selectedDate);  // Convert to UTC
+            var sSelectedLocationKey = oEvent.getSource().getSelectedKey();      // Get selected location's timezone
+            var aLocations = oLocationModel.getProperty("/");
+            var oSelectedLocation = aLocations.find(loc => loc.Location === sSelectedLocationKey);
+            if (!oSelectedLocation) {
+                console.error("Location not found.");
+                return;
+            }
+            var sTimeZone = oSelectedLocation.Tzone; // Get time zone of selected location
+            var dConvertedDate = that.convertToTimeZone(dUTCDate, sTimeZone);   // Convert UTC to selected location timezone
+            // oDateTimePicker.setDateValue(dConvertedDate);
+            oTableModel.setProperty(oContext.getPath() + "/PkgPickupDt", dConvertedDate);    // Update the selected row's PkgPickupDt in the model
+            console.log("Updated DateTimePicker with:", dConvertedDate, "Timezone:", sTimeZone);
+        },
+
+        convertToTimeZone: function (oDate, sTargetTimeZone) {
+            debugger
+            // Convert string to Date object
+            if (typeof oDate === "string") {
+                oDate = new Date(oDate);
+            }
+            if (!oDate || !(oDate instanceof Date) || isNaN(oDate.getTime())) {
+                console.error("Invalid or missing date:", oDate);
+                return null;
+            }
+            if (!sTargetTimeZone) {
+                console.error("Missing or invalid timezone:", sTargetTimeZone);
+                return null;
+            }
+            // Create formatter once
+            if (!this.oDateTimeWithTimezoneFormat) {
+                this.oDateTimeWithTimezoneFormat = sap.ui.core.format.DateFormat.getDateTimeWithTimezoneInstance({
+                    pattern: "yyyy-MM-dd HH:mm:ss",
+                    showTimezone: true
+                });
+            }
+            // Format date with timezone
+            try {
+                var sFormattedDate = this.oDateTimeWithTimezoneFormat.format(oDate, sTargetTimeZone);
+                console.log("Formatted Date in " + sTargetTimeZone + ": ", sFormattedDate);
+                var dLocalDate = this.convertFormattedStringToLocalDate(sFormattedDate);
+                return dLocalDate;
+            } catch (error) {
+                console.error("Date formatting failed:", error);
+                return null;
+            }
+        },
+
+        convertFormattedStringToLocalDate: function (sFormattedDate) {
+            debugger;
+            if (!sFormattedDate) {
+                console.error("Missing input date string");
+                return null;
+            }
+            // Step 1: Parse the "yyyy-MM-dd HH:mm:ss" formatted string
+            var oDateFormat = sap.ui.core.format.DateFormat.getDateTimeInstance({
+                pattern: "yyyy-MM-dd HH:mm:ss"
+            });
+            var oParsedDate = oDateFormat.parse(sFormattedDate);
+
+            // Step 2: Return the parsed JavaScript Date 
+            if (oParsedDate instanceof Date && !isNaN(oParsedDate)) {
+                console.log("Converted to JS Date:", oParsedDate);
+                return oParsedDate;
+            } else {
+                console.error("Invalid parsed date:", oParsedDate);
+                return null;
+            }
+        },
+
+        convertToUTC: function (date, selectedDate) {
+            debugger
+            // Create a DateFormat instance with UTC enabled
+            var oDateFormat = sap.ui.core.format.DateFormat.getDateTimeInstance({
+                pattern: "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                UTC: true
+            });
+            // Format the date as a UTC string
+            var utcDateString = oDateFormat.format(date);
+            return utcDateString;
+
+        }
+
         // **************************END
     });
 });

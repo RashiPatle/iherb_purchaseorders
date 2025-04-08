@@ -234,13 +234,13 @@
                         </t:template>
                     </t:Column>
                     <!-- Pick up date -->
-                    <t:Column id="_IDGenColumn18" width="12rem" sortProperty="PkgPickupDt" filterProperty="PkgPickupDt">
+                    <t:Column id="_IDGenColumn18" width="15rem" sortProperty="PkgPickupDt" filterProperty="PkgPickupDt">
                         <t:customData>
                             <core:CustomData key="p13nData" />
                         </t:customData>
                         <m:Label id="idLabPickup18" text="{i18n>pickupdate}" required="true"/>
                         <t:template>
-                            <m:DatePicker id="pickUpDateId" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path: 'POTableModel>PkgPickupDt',type: 'sap.ui.model.type.DateTime', formatOptions: {pattern: 'MM/dd/yyyy HH:mm'}}"/>
+                            <m:DateTimePicker id="pickUpDateId" change=".onDateTimeChange" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt',type:'sap.ui.model.type.DateTime',formatOptions: {'style': 'medium'}}"/>
                         </t:template>
                     </t:Column>
                     <!-- Pick up Location -->
@@ -250,7 +250,7 @@
                         </t:customData>
                         <m:Label id="_IDGenLabel19" text="{i18n>pickupLoc}" />
                         <t:template>
-                            <m:Select id="_IDGenComboBox20" width="300px" selectedKey="{POTableModel>PkgSrcLoc}" editable="{= ${POTableModel>ReadOnly} !== 'X' }" items="{POTableModel>to_Shipper/results}">
+                            <m:Select id="_IDGenComboBox20" change="onLocationChange" width="300px" selectedKey="{POTableModel>PkgSrcLoc}" editable="{= ${POTableModel>ReadOnly} !== 'X' }" items="{POTableModel>to_Shipper/results}">
                                 <core:Item id="_IDGenListItem20" key="{POTableModel>Location}" text="{POTableModel>LocDescr}"></core:Item>
                             </m:Select>
                         </t:template>
