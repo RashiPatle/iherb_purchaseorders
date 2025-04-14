@@ -18,7 +18,7 @@ server:
         backend:
           - path: /sap
             url: https://342c86ba-d848-4fbe-861c-8c4b7e6d5ec7.abap.us10.hana.ondemand.com
-            destination: abap-cloud-default_abap-iherb_holdings-_llc_iherbdev-dev
+            destination: abap_cloud
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:

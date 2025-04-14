@@ -5,7 +5,7 @@
     {
       "source": "^/sap/(.*)$",
       "target": "/sap/$1",
-      "destination": "abap-cloud-default_abap-iherb_holdings-_llc_iherbdev-dev",
+      "destination": "abap_cloud",
       "authenticationType": "xsuaa",
       "csrfProtection": false
     },

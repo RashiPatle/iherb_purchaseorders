@@ -32,7 +32,8 @@
                         <Label id="_IDGenLabel11" text="{i18n>pickupLoc}"/>
                         <Select id="inputLoc" required="true"/>
                         <Label id="_IDGenLabel18" text="{i18n>pickupdate}"/>
-                        <DatePicker id="inputDate" valueFormat="{MM/dd/yyyy, type:'sap.ui.model.type.Date'}" displayFormat="MM/dd/yyyy" required="true"/>
+                        <DateTimePicker id="inputDate" required="true" placeholder="Enter Date"></DateTimePicker>
+                        <!-- <DatePicker id="inputDate" valueFormat="{MM/dd/yyyy, type:'sap.ui.model.type.Date'}" displayFormat="MM/dd/yyyy" required="true"/> -->
                     </form:content>
                     <form:title>
                         <core:Title text="{i18n>poDetails}" id="title15"/>
