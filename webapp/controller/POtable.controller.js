@@ -192,6 +192,23 @@ sap.ui.define([
             var dDate = new Date(Date.UTC(iYear, iMonth, iDay, iHour, iMinute));
             return dDate;
         },
+
+        onFilterSelect: function (oEvent) {
+            debugger
+            var oTable = this.byId("idPOTable");
+            var oBinding = oTable.getBinding("rows");
+            var sKey = oEvent.getParameter("key"),
+                aFilters = [];
+            oBinding.filter([]);
+
+            if (sKey === 'Editable') {
+                aFilters.push(new Filter("ReadOnly", "EQ", "X"));
+            } else if (sKey === 'non-Editable') {
+                aFilters.push(new Filter("ReadOnly", "EQ", ""));
+            }
+            oBinding.filter(aFilters);
+        },
+
         clearSelect: function (oTable) {
             var oTable = this.byId("idPOTable");
             var oData = this.getView().getModel().getData(isEdit); // Get backend data
@@ -460,12 +477,10 @@ sap.ui.define([
             var oLocationModel = this.getView().getModel("LocationModel");
             var oTable = this.getView().byId("idPOTable");
             var aSelectedIndices = oTable.getSelectedIndices();
-
             if (aSelectedIndices.length === 0) {
                 sap.m.MessageToast.show("Please select a row first.");
                 return;
             }
-
             var oContext = oTable.getContextByIndex(aSelectedIndices[0]);
             var oSelectedRow = oContext.getObject();
             // Step 1: Get selected date
@@ -474,28 +489,21 @@ sap.ui.define([
                 console.error("Invalid date selected");
                 return;
             }
-
             // Step 2: Convert to UTC
             var dUTCDate = this.convertToUTC(selectedDate);
-
             // Step 3: Get selected/default location
             var sLocationKeyFromRow = oSelectedRow.PkgSrcLoc;
             var aLocations = oLocationModel.getProperty("/");
             var oSelectedLocation = aLocations.find(loc => loc.Location === sLocationKeyFromRow);
-
             if (!oSelectedLocation) {
                 console.error("Location not found.");
                 return;
             }
-
             var sTimeZone = oSelectedLocation.Tzone;
-
             // Step 4: Convert UTC to selected location timezone
             var dConvertedDate = that.convertToTimeZone(dUTCDate, sTimeZone);
-
             // Step 5: Update table model
             oTableModel.setProperty(oContext.getPath() + "/PkgPickupDt", dConvertedDate);
-
             console.log("Date selected and converted:", dConvertedDate, "Timezone:", sTimeZone);
         },
 
@@ -544,7 +552,6 @@ sap.ui.define([
             if (!(utcDate instanceof Date)) {
                 utcDate = new Date(utcDate); // ensure it's a Date object
             }
-
             const options = {
                 timeZone: sTargetTimeZone,
                 year: "numeric",
@@ -555,17 +562,14 @@ sap.ui.define([
                 second: "2-digit",
                 hour12: false
             };
-
             const parts = new Intl.DateTimeFormat("en-US", options).formatToParts(utcDate);
             const get = type => parts.find(p => p.type === type)?.value;
-
             const year = get("year");
             const month = get("month");
             const day = get("day");
             const hour = get("hour");
             const minute = get("minute");
             const second = get("second");
-
             // Create a local Date object based on CST values
             const localDateStr = `${year}-${month}-${day}T${hour}:${minute}:${second}`;
             const localDate = new Date(localDateStr);
