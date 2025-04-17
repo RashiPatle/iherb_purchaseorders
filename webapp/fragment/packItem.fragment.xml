@@ -30,7 +30,7 @@
                         <Input id="pkgId" type="Number" required="true"/>
                         <core:Title id="_IDGenTitle2" text="{i18n>pickUpDetails}"/>
                         <Label id="_IDGenLabel11" text="{i18n>pickupLoc}"/>
-                        <Select id="inputLoc" required="true"/>
+                        <ComboBox id="inputLoc" change="onLocationChange" required="true"/>
                         <Label id="_IDGenLabel18" text="{i18n>pickupdate}"/>
                         <DateTimePicker id="inputDate" required="true" placeholder="Enter Date"></DateTimePicker>
                         <!-- <DatePicker id="inputDate" valueFormat="{MM/dd/yyyy, type:'sap.ui.model.type.Date'}" displayFormat="MM/dd/yyyy" required="true"/> -->

@@ -1,6 +1,4 @@
 <core:FragmentDefinition xmlns="sap.ui.comp.valuehelpdialog"
     xmlns:core="sap.ui.core">
-    <ValueHelpDialog id="_IDGenValueHelpDialog" title="{i18n>PurchaseOrderLabel}" ok=".onMultipleConditionsValueHelpOkPress" 
-    cancel=".onMultipleConditionsCancelPress" key="BaseBtdId" descriptionKey="Name" supportRanges="true" afterClose=".onMultipleConditionsAfterClose" 
-    supportRangesOnly="true"/>
+    <ValueHelpDialog id="_IDGenValueHelpDialog" title="{i18n>PurchaseOrderLabel}" ok=".onMultipleConditionsValueHelpOkPress" cancel=".onMultipleConditionsCancelPress" key="BaseBtdId" descriptionKey="Name" supportRanges="true" afterClose=".onMultipleConditionsAfterClose" supportRangesOnly="true"/>
 </core:FragmentDefinition>

@@ -135,6 +135,9 @@ sap.ui.define([
             let gettingAllRows = oTable.getBinding().aIndices;
             let oSelIndices = oTable.getSelectedIndices();
 
+            let oLocationModel = this.getView().getModel("LocationModel");
+            let aLocations = oLocationModel.getProperty("/");
+
             if (oSelIndices.length === 0) {
                 sap.ui.core.BusyIndicator.hide();
                 sap.m.MessageBox.show("Please select a row first.");
@@ -144,6 +147,12 @@ sap.ui.define([
                     var oContext = oTable.getContextByIndex(oSelIndices[i]);
                     var oFreightOrder = oContext.getObject();
                     var sFO = oFreightOrder.DbKey;
+
+                    var sLocationKey = oFreightOrder.PkgSrcLoc;    // Get the location from the freight order row
+                    var oLocation = aLocations.find(loc => loc.Location === sLocationKey);
+                    var sTimeZone = oLocation ? oLocation.Tzone : "UTC"; // Fallback to UTC if not found
+
+                    var dConvertedUTC = that.convertDateUTC(oFreightOrder.PkgPickupDt, sTimeZone);
 
                     var sPOPayload = {
                         "DbKey": sFO,
@@ -159,7 +168,7 @@ sap.ui.define([
                         "PkgWeiVal": oFreightOrder.PkgWeiVal,
                         "PkgWeiUni": oFreightOrder.PkgWeiUni,
                         "PkgId": oFreightOrder.PkgId,
-                        "PkgPickupDt": that.convertDateUTC(oFreightOrder.PkgPickupDt), // Updated value
+                        "PkgPickupDt": dConvertedUTC, // Updated value
                         "PkgReeferComply": oFreightOrder.PkgReeferComply,
                         "PkgSrcLoc": oFreightOrder.PkgSrcLoc
                     };
@@ -171,7 +180,6 @@ sap.ui.define([
                                 "Freight Unit " + oFreightOrder.TorId + " Updated successfully"
                             );
                             that.onReadOdata();
-                            // that.clearSelect();
                         },
                         error: function (oError) {
                             sap.ui.core.BusyIndicator.hide();
@@ -182,15 +190,6 @@ sap.ui.define([
                     });
                 }
             }
-        },
-        convertDateUTC: function (sDate) {
-            var iYear = sDate.getUTCFullYear();
-            var iMonth = sDate.getUTCMonth();
-            var iDay = sDate.getUTCDate();
-            var iHour = sDate.getUTCHours();
-            var iMinute = sDate.getUTCMinutes();
-            var dDate = new Date(Date.UTC(iYear, iMonth, iDay, iHour, iMinute));
-            return dDate;
         },
 
         onFilterSelect: function (oEvent) {
@@ -337,9 +336,63 @@ sap.ui.define([
             if (oMultiInput1) {
                 var aTokens1 = oMultiInput1.getTokens();
                 if (aTokens1.length > 0) {
-                    var aProductIDs = aTokens1.map(token => token.getText().replace(/\*/g, ""));
-                    console.log("Extracted Product IDs:", aProductIDs);
-                    var aProductFilters = aProductIDs.map(id => new Filter("BaseBtdId", FilterOperator.EQ, id));
+                    var aProductFilters = [];
+
+                    aTokens1.forEach(function (oToken) {
+                        var oCustomData = oToken.data(); // get the data object
+                        var sKey = oCustomData?.rangeKey || "BaseBtdId"; // default fallback
+                        var oRange = oToken.data("range");
+
+                        if (oRange) {
+                            var sOperation = oRange.operation;
+                            var sValue1 = oRange.value1;
+                            var sValue2 = oRange.value2;
+
+                            switch (sOperation) {
+                                case "EQ":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.EQ, sValue1));
+                                    break;
+                                case "Contains":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.Contains, sValue1));
+                                    break;
+                                case "BT":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.BT, sValue1, sValue2));
+                                    break;
+                                case "StartsWith":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.StartsWith, sValue1));
+                                    break;
+                                case "EndsWith":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.EndsWith, sValue1));
+                                    break;
+                                case "LT":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.LT, sValue1));
+                                    break;
+                                case "LE":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.LE, sValue1));
+                                    break;
+                                case "GT":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.GT, sValue1));
+                                    break;
+                                case "GE":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.GE, sValue1));
+                                    break;
+                                case "NE":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.NE, sValue1));
+                                    break;
+                                case "Empty":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.EQ, ""));
+                                    break;
+                                case "NotEmpty":
+                                    aProductFilters.push(new Filter(sKey, FilterOperator.NE, ""));
+                                    break;
+                                default:
+                                    console.warn("Unsupported operation:", sOperation);
+                            }
+                        } else {
+                            var sText = oToken.getText().replace(/\*/g, "");
+                            aProductFilters.push(new Filter(sKey, FilterOperator.EQ, sText));
+                        }
+                    });
                     var oFinalFilter = new sap.ui.model.Filter(aProductFilters, false);
                     aFilters.push(oFinalFilter);
                 }
@@ -350,10 +403,65 @@ sap.ui.define([
             if (oMultiInput2) {
                 var aTokens2 = oMultiInput2.getTokens();
                 if (aTokens2.length > 0) {
-                    var aPackageIDs = aTokens2.map(token => token.getText().replace(/\*/g, ""));
-                    var aPackageFilter = aPackageIDs.map(id => new Filter("PkgId", FilterOperator.EQ, id));
-                    var oFinalPackageFilter = new sap.ui.model.Filter(aPackageFilter, false);
-                    aFilters.push(oFinalPackageFilter);
+                    var aPackageFilter = [];
+
+                    aTokens2.forEach(function (oToken) {
+                        var oCustomData = oToken.data(); // get the data object
+                        var sKey = oCustomData?.rangeKey || "PkgId"; // default fallback
+                        var oRange = oToken.data("range");
+
+                        if (oRange) {
+                            var sOperation = oRange.operation;
+                            var sValue1 = oRange.value1;
+                            var sValue2 = oRange.value2;
+
+                            switch (sOperation) {
+                                case "EQ":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.EQ, sValue1));
+                                    break;
+                                case "Contains":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.Contains, sValue1));
+                                    break;
+                                case "BT":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.BT, sValue1, sValue2));
+                                    break;
+                                case "StartsWith":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.StartsWith, sValue1));
+                                    break;
+                                case "EndsWith":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.EndsWith, sValue1));
+                                    break;
+                                case "LT":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.LT, sValue1));
+                                    break;
+                                case "LE":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.LE, sValue1));
+                                    break;
+                                case "GT":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.GT, sValue1));
+                                    break;
+                                case "GE":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.GE, sValue1));
+                                    break;
+                                case "NE":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.NE, sValue1));
+                                    break;
+                                case "Empty":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.EQ, ""));
+                                    break;
+                                case "NotEmpty":
+                                    aPackageFilter.push(new Filter(sKey, FilterOperator.NE, ""));
+                                    break;
+                                default:
+                                    console.warn("Unsupported operation:", sOperation);
+                            }
+                        } else {
+                            var sText = oToken.getText().replace(/\*/g, "");
+                            aPackageFilter.push(new Filter(sKey, FilterOperator.EQ, sText));
+                        }
+                    });
+                    var oFinalFilter = new sap.ui.model.Filter(aPackageFilter, false);
+                    aFilters.push(oFinalFilter);
                 }
             } else {
                 console.error("MultiInput2 is null");
@@ -439,112 +547,73 @@ sap.ui.define([
             this._oMultipleConditionsDialog.destroy();
         },
 
-        // convertDateToUTC: function (localDate, sTargetTimeZone) {
-        //     const options = {
-        //         timeZone: "UTC",
-        //         year: "numeric",
-        //         month: "2-digit",
-        //         day: "2-digit",
-        //         hour: "2-digit",
-        //         minute: "2-digit",
-        //         second: "2-digit",
-        //         hour12: false
-        //     };
-
-        //     const parts = new Intl.DateTimeFormat("en-US", {
-        //         ...options,
-        //         timeZone: sTargetTimeZone
-        //     }).formatToParts(localDate);
-
-        //     const get = type => parts.find(p => p.type === type)?.value;
-
-        //     const year = get("year");
-        //     const month = get("month");
-        //     const day = get("day");
-        //     const hour = get("hour");
-        //     const minute = get("minute");
-        //     const second = get("second");
-
-        //     const utcStr = `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
-        //     console.log("Formatted date string UTC sended in backend:", utcStr);
-        //     return new Date(utcStr); // Now a real UTC Date object
-        // },
-
-        onDateTimeChange: function (oEvent) {
+        convertDateUTC: function (localDateStr) {
             debugger
-            var that = this;
-            var oTableModel = this.getView().getModel("POTableModel");
-            var oLocationModel = this.getView().getModel("LocationModel");
-            var oTable = this.getView().byId("idPOTable");
-            var aSelectedIndices = oTable.getSelectedIndices();
-            if (aSelectedIndices.length === 0) {
-                sap.m.MessageToast.show("Please select a row first.");
-                return;
-            }
-            var oContext = oTable.getContextByIndex(aSelectedIndices[0]);
-            var oSelectedRow = oContext.getObject();
-            // Step 1: Get selected date
-            var selectedDate = oEvent.getSource().getDateValue();
-            if (!selectedDate || isNaN(selectedDate)) {
-                console.error("Invalid date selected");
-                return;
-            }
-            // Step 2: Convert to UTC
-            var dUTCDate = this.convertToUTC(selectedDate);
-            // Step 3: Get selected/default location
-            var sLocationKeyFromRow = oSelectedRow.PkgSrcLoc;
-            var aLocations = oLocationModel.getProperty("/");
-            var oSelectedLocation = aLocations.find(loc => loc.Location === sLocationKeyFromRow);
-            if (!oSelectedLocation) {
-                console.error("Location not found.");
-                return;
-            }
-            var sTimeZone = oSelectedLocation.Tzone;
-            // Step 4: Convert UTC to selected location timezone
-            var dConvertedDate = that.convertToTimeZone(dUTCDate, sTimeZone);
-            // Step 5: Update table model
-            oTableModel.setProperty(oContext.getPath() + "/PkgPickupDt", dConvertedDate);
-            console.log("Date selected and converted:", dConvertedDate, "Timezone:", sTimeZone);
+            const options = {
+                timeZone: "UTC",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: false
+            };
+
+            const parts = new Intl.DateTimeFormat("en-US", options).formatToParts(localDateStr);
+            const get = type => parts.find(p => p.type === type)?.value;
+            const year = get("year");
+            const month = get("month");
+            const day = get("day");
+            const hour = get("hour");
+            const minute = get("minute");
+            const second = get("second");
+            const utcStr = `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
+            console.log("Formatted date string UTC sended in backend:", utcStr);
+            return new Date(utcStr); // Now a real UTC Date object
         },
 
         onLocationChange: function (oEvent) {
             debugger
             var that = this;
-            var oDateTimePicker = this.getView().byId("pickUpDateId");
+
+            var oSource = oEvent.getSource();  // dropdown in the row
+            var oContext = oSource.getBindingContext("POTableModel"); //Get current row context
+
+            if (!oContext) {
+                console.error("No context found for this row.");
+                return;
+            }
+
             var oTableModel = this.getView().getModel("POTableModel");
             var oLocationModel = this.getView().getModel("LocationModel");
-            var oTable = this.getView().byId("idPOTable");
-            var aSelectedIndices = oTable.getSelectedIndices();
-            if (aSelectedIndices.length === 0) {
-                sap.m.MessageToast.show("Please select a row first.");
-                this.onRefresh();
-                return;
-            }
-            var oContext = oTable.getContextByIndex(aSelectedIndices[0]);  // Get selected row context
-            var oSelectedRow = oContext.getObject();
-            // var sSelectedDate = oSelectedRow.PkgPickupDt;    // Get PkgPickupDt (Local Browser Time)
-            // if (!sSelectedDate) {
-            //     sap.m.MessageToast.show("No date found in selected row.");
-            //     return;
-            // }
-            var selectedDate = new Date();  // Convert string to Date object
-            if (isNaN(selectedDate)) {
-                console.error("Invalid date:", sSelectedDate);
-                return;
-            }
-            var dUTCDate = this.convertToUTC(selectedDate);  // Convert to UTC
-            var sSelectedLocationKey = oEvent.getSource().getSelectedKey();      // Get selected location's timezone
+
+            // Get selected location from the dropdown in the row
+            var sSelectedLocationKey = oSource.getSelectedKey();
             var aLocations = oLocationModel.getProperty("/");
+
             var oSelectedLocation = aLocations.find(loc => loc.Location === sSelectedLocationKey);
             if (!oSelectedLocation) {
-                console.error("Location not found.");
+                console.error("Location not found for key:", sSelectedLocationKey);
                 return;
             }
-            var sTimeZone = oSelectedLocation.Tzone; // Get time zone of selected location
-            var dConvertedDate = that.convertToTimeZone(dUTCDate, sTimeZone);   // Convert UTC to selected location timezone
-            // oDateTimePicker.setDateValue(dConvertedDate);
-            oTableModel.setProperty(oContext.getPath() + "/PkgPickupDt", dConvertedDate);    // Update the selected row's PkgPickupDt in the model
-            console.log("Updated DateTimePicker with:", dConvertedDate, "Timezone:", sTimeZone);
+
+            var sTimeZone = oSelectedLocation.Tzone;
+
+            var sDate = oContext.getProperty("PkgPickupDt");
+            var dLocalDate = sDate ? new Date(sDate) : new Date(); // fallback to current date
+
+            if (isNaN(dLocalDate)) {
+                console.error("Invalid date in row.");
+                return;
+            }
+
+            var dUTCDate = that.convertToUTC(dLocalDate);
+            var dConvertedDate = that.convertToTimeZone(dUTCDate, sTimeZone);
+
+            oTableModel.setProperty(oContext.getPath() + "/PkgPickupDt", dConvertedDate);
+
+            console.log("Row updated → Date:", dConvertedDate, "TimeZone:", sTimeZone);
         },
 
         convertToTimeZone: function (utcDate, sTargetTimeZone) {
@@ -570,7 +639,6 @@ sap.ui.define([
             const hour = get("hour");
             const minute = get("minute");
             const second = get("second");
-            // Create a local Date object based on CST values
             const localDateStr = `${year}-${month}-${day}T${hour}:${minute}:${second}`;
             const localDate = new Date(localDateStr);
             console.log("Formatted date string based on timezone (in " + sTargetTimeZone + "):", localDateStr);
