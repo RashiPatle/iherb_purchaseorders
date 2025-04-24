@@ -19,6 +19,11 @@ sap.ui.define([
         onReadOdata: function () {
             var that = this;
             sap.ui.core.BusyIndicator.show();
+            const timeZoneMap = {
+                "CST": "America/Chicago",
+                "PST": "America/Los_Angeles",
+                "MST": "America/Denver"
+            };
             var oModel = this.getView().getModel("POTableModel");
             var oDataModel = this.getOwnerComponent().getModel();
             oDataModel.read("/ZC_FuTorItem", {
@@ -63,6 +68,48 @@ sap.ui.define([
                                     second: "2-digit"
                                 }).replace(",", "");
                                 item.DeliveryDtPST = pstDate;
+                            }
+                        });
+                    }
+                    if (oData.results) {
+                        oData.results.forEach(item => {
+                            if (item.PkgPickupDt && item.PkgTzone) {
+                                const timeZone = timeZoneMap[item.PkgTzone] || "UTC";
+                                const utcDate = new Date(item.PkgPickupDt);
+                                var oFormatter = sap.ui.core.format.DateFormat.getDateTimeInstance({
+                                    pattern: "yyyy/MM/dd HH:mm:ss"
+                                });
+                                // Extract parts in the selected timezone
+                                const formatter = new Intl.DateTimeFormat("en-US", {
+                                    timeZone,
+                                    hour12: false,
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit"
+                                });
+                                console.log("after GET Call:", utcDate)
+                                const parts = formatter.formatToParts(utcDate);
+                                const getPart = type => parts.find(p => p.type === type)?.value;
+
+                                const year = parseInt(getPart("year"));
+                                const month = parseInt(getPart("month"));
+                                const day = parseInt(getPart("day"));
+                                const hour = parseInt(getPart("hour"));
+                                const minute = parseInt(getPart("minute"));
+                                const second = parseInt(getPart("second"));
+
+                                // Build a date in UTC, not local
+                                const converted = new Date(year, month - 1, day, hour, minute, second);
+
+                                let formattedCST = oFormatter.format(converted);
+                                // item.PkgPickupDt = formattedCST;
+
+                                item.PkgPickupDt = converted;
+                                console.log("Final JS Date formattedCST--:", formattedCST);
+                                console.log("Final JS Date converted--:", converted);
                             }
                         });
                     }
@@ -128,6 +175,7 @@ sap.ui.define([
         },
 
         onSubmitPress: function () {
+            debugger
             sap.ui.core.BusyIndicator.show();
             let that = this;
             let oUpdateModel = this.getView().getModel();
@@ -148,11 +196,13 @@ sap.ui.define([
                     var oFreightOrder = oContext.getObject();
                     var sFO = oFreightOrder.DbKey;
 
-                    var sLocationKey = oFreightOrder.PkgSrcLoc;    // Get the location from the freight order row
-                    var oLocation = aLocations.find(loc => loc.Location === sLocationKey);
-                    var sTimeZone = oLocation ? oLocation.Tzone : "UTC"; // Fallback to UTC if not found
+                    let selectedDate = oFreightOrder.PkgPickupDt; // comes from DateTimePicker
+                    let selectedLocation = oFreightOrder.PkgSrcLoc;
+                    let timeZone = aLocations.find(loc => loc.Location === selectedLocation)?.Tzone || "UTC";
 
-                    var dConvertedUTC = that.convertDateUTC(oFreightOrder.PkgPickupDt, sTimeZone);
+                    let utcDate = this.convertDateToUTC(selectedDate, timeZone);
+                    // let utcDate = this.convertDateUTC(selectedDate, timeZone);
+                    console.log(utcDate, "UTC converted date")
 
                     var sPOPayload = {
                         "DbKey": sFO,
@@ -168,7 +218,7 @@ sap.ui.define([
                         "PkgWeiVal": oFreightOrder.PkgWeiVal,
                         "PkgWeiUni": oFreightOrder.PkgWeiUni,
                         "PkgId": oFreightOrder.PkgId,
-                        "PkgPickupDt": dConvertedUTC, // Updated value
+                        "PkgPickupDt": utcDate, // for backend
                         "PkgReeferComply": oFreightOrder.PkgReeferComply,
                         "PkgSrcLoc": oFreightOrder.PkgSrcLoc
                     };
@@ -191,6 +241,85 @@ sap.ui.define([
                 }
             }
         },
+
+        convertDateToUTC: function (localDate, timeZone) {
+            debugger
+            // Treat localDate as if it's in the given time zone (CST/PST/MST)
+            var offsetMs = this.getTimeZoneOffsetInMs(timeZone); // e.g., CST = -5 * 60 * 60 * 1000
+            var utcTimeMs = localDate.getTime() - offsetMs;
+            var finalUTCDate = new Date(utcTimeMs);
+            var oFormatter = sap.ui.core.format.DateFormat.getDateTimeInstance({
+                pattern: "yyyy-MM-dd'T'HH:mm:ss'Z'"
+            });
+            var sFormattedCST = oFormatter.format(finalUTCDate);
+            var sConvertedDate = sFormattedCST.toLocaleString();
+            console.log("Formatted date string UTC sended in backend:", sConvertedDate);
+            return sConvertedDate;
+
+        },
+        getTimeZoneOffsetInMs: function (timeZone) {
+            debugger
+            const offsets = {
+                "CST": -5,
+                "PST": -7,
+                "MST": -7
+            };
+            return offsets[timeZone] * 60 * 60 * 1000;
+        },
+
+
+        // convertDateToUTC: function (localDate, timeZone) {
+        //     if (!localDate || !(localDate instanceof Date)) {
+        //         console.error("Invalid date object");
+        //         return null;
+        //     }
+
+        //     // Step 1: Extract local parts
+        //     const year = localDate.getFullYear();
+        //     const month = localDate.getMonth(); // 0-based
+        //     const date = localDate.getDate();
+        //     const hours = localDate.getHours();
+        //     const minutes = localDate.getMinutes();
+        //     const seconds = localDate.getSeconds();
+
+        //     // Step 2: Create a "local-like" string from parts
+        //     const localISOString = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        //     // Step 3: Use that as if it was in the selected time zone
+        //     const zonedDate = new Date(
+        //         new Intl.DateTimeFormat('en-US', {
+        //             timeZone,
+        //             hour12: false,
+        //             year: 'numeric',
+        //             month: '2-digit',
+        //             day: '2-digit',
+        //             hour: '2-digit',
+        //             minute: '2-digit',
+        //             second: '2-digit'
+        //         }).format(new Date(localISOString))
+        //     );
+
+        //     // Step 4: Now compute offset and adjust manually
+        //     const utcDate = new Date(Date.UTC(year, month, date, hours, minutes, seconds));
+        //     const offsetInMin = new Date(localISOString + 'Z').getTimezoneOffset();
+        //     const offsetInMs = offsetInMin * 60 * 1000;
+
+        //     const finalDate = new Date(utcDate.getTime() - this.getTimeZoneOffsetInMs(timeZone, utcDate));
+        //     return finalDate;
+        // },
+
+        // getTimeZoneOffsetInMs: function(timeZone, date = new Date()) {
+        //     const options = { timeZone, timeZoneName: "short" };
+        //     const format = new Intl.DateTimeFormat("en-US", options);
+        //     const parts = format.formatToParts(date);
+        //     const tzPart = parts.find(part => part.type === "timeZoneName");
+        //     const match = tzPart?.value?.match(/GMT([+-]\d{1,2})(?::(\d{2}))?/);
+
+        //     if (!match) return 0;
+        //     const hours = parseInt(match[1], 10);
+        //     const minutes = parseInt(match[2] || "0", 10);
+        //     return -(hours * 60 + minutes) * 60 * 1000;
+        // },
 
         onFilterSelect: function (oEvent) {
             debugger
@@ -547,47 +676,42 @@ sap.ui.define([
             this._oMultipleConditionsDialog.destroy();
         },
 
-        convertDateUTC: function (localDateStr) {
+        convertDateUTC: function (localDateStr, zonedDate) {
             debugger
-            const options = {
-                timeZone: "UTC",
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: false
-            };
+            // if (typeof zonedDate === "string") {
+            //     zonedDate = new Date(zonedDate);
+            // }
 
-            const parts = new Intl.DateTimeFormat("en-US", options).formatToParts(localDateStr);
-            const get = type => parts.find(p => p.type === type)?.value;
-            const year = get("year");
-            const month = get("month");
-            const day = get("day");
-            const hour = get("hour");
-            const minute = get("minute");
-            const second = get("second");
-            const utcStr = `${year}-${month}-${day}T${hour}:${minute}:${second}Z`;
-            console.log("Formatted date string UTC sended in backend:", utcStr);
-            return new Date(utcStr); // Now a real UTC Date object
+            // if (!zonedDate || isNaN(zonedDate.getTime())) {
+            //     console.error("Invalid CST date:", zonedDate);
+            //     return null;
+            // }
+
+            // Convert CST to UTC by adding 6 hours (CST is UTC-6)
+            var utcOffsetMillis = 5 * 60 * 60 * 1000;
+            var utcDate = new Date(localDateStr.getTime() + utcOffsetMillis);
+            var oFormatter = sap.ui.core.format.DateFormat.getDateTimeInstance({
+                pattern: "yyyy-MM-dd'T'HH:mm:ss'Z'"
+            });
+
+            var sFormattedCST = oFormatter.format(utcDate);
+            var sConvertedDate = sFormattedCST.toLocaleString();
+            console.log("Formatted date string UTC sended in backend:", sConvertedDate);
+            return sConvertedDate;
+
         },
 
         onLocationChange: function (oEvent) {
             debugger
             var that = this;
-
             var oSource = oEvent.getSource();  // dropdown in the row
             var oContext = oSource.getBindingContext("POTableModel"); //Get current row context
-
             if (!oContext) {
                 console.error("No context found for this row.");
                 return;
             }
-
             var oTableModel = this.getView().getModel("POTableModel");
             var oLocationModel = this.getView().getModel("LocationModel");
-
             // Get selected location from the dropdown in the row
             var sSelectedLocationKey = oSource.getSelectedKey();
             var aLocations = oLocationModel.getProperty("/");
@@ -599,7 +723,6 @@ sap.ui.define([
             }
 
             var sTimeZone = oSelectedLocation.Tzone;
-
             var sDate = oContext.getProperty("PkgPickupDt");
             var dLocalDate = sDate ? new Date(sDate) : new Date(); // fallback to current date
 
@@ -607,14 +730,50 @@ sap.ui.define([
                 console.error("Invalid date in row.");
                 return;
             }
-
-            var dUTCDate = that.convertToUTC(dLocalDate);
-            var dConvertedDate = that.convertToTimeZone(dUTCDate, sTimeZone);
-
-            oTableModel.setProperty(oContext.getPath() + "/PkgPickupDt", dConvertedDate);
-
-            console.log("Row updated → Date:", dConvertedDate, "TimeZone:", sTimeZone);
+            // var utcDate = that.convertToUTCFromTimezone(dLocalDate, sTimeZone);
+            // return utcDate;
+            // var dUTCDate = that.convertToUTC(dLocalDate);
+            // var dConvertedDate = that.convertToTimeZone(dLocalDate, sTimeZone);
+            // oTableModel.setProperty(oContext.getPath() + "/PkgPickupDt", dConvertedDate);
+            // console.log("Row updated → Date:", dConvertedDate, "TimeZone:", sTimeZone);
         },
+
+
+        // convertToUTCFromTimezone: function (localDate, timeZone) {
+        //     debugger
+
+        //     if (!localDate || !(localDate instanceof Date)) {
+        //         console.error("Invalid date object");
+        //         return null;
+        //     }
+
+        //     // 1. Get the individual date parts
+        //     const formatter = new Intl.DateTimeFormat('en-US', {
+        //         timeZone,
+        //         year: "numeric",
+        //         month: "2-digit",
+        //         day: "2-digit",
+        //         hour: "2-digit",
+        //         minute: "2-digit",
+        //         second: "2-digit",
+        //         hour12: false
+        //     });
+
+        //     const parts = formatter.formatToParts(localDate).reduce((acc, part) => {
+        //         if (part.type !== 'literal') acc[part.type] = part.value;
+        //         return acc;
+        //     }, {});
+
+        //     // 2. Construct a "local" datetime string as if the input was in that time zone
+        //     const localString = `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`;
+
+        //     // 3. Convert to UTC by creating a Date object from the local string
+        //     const utcDate = new Date(localString + "Z"); // The 'Z' forces interpretation as UTC
+
+        //     return utcDate;
+
+
+        // },
 
         convertToTimeZone: function (utcDate, sTargetTimeZone) {
             debugger

@@ -42,6 +42,12 @@
           "action": "display",
           "title": "{{z_purchaseorder-display.flpTitle}}",
           "subTitle": "{{z_purchaseorder-display.flpSubtitle}}",
+          "icon": "sap-icon://cart",
+          "indicatorDataSource": {
+						"dataSource": "mainService",
+						"path": "ZC_FuTorItem/$count",
+						"refresh": 1000
+					},
           "signature": {
             "parameters": {},
             "additionalParameters": "allowed"
