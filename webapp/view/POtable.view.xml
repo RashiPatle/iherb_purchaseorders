@@ -5,7 +5,6 @@
     xmlns:t="sap.ui.table"
     xmlns:f="sap.f"
     xmlns="sap.uxap"
-    xmlns:customData="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
     xmlns:m="sap.m">
     <m:Page id="page" enableScrolling="true" showHeader="false">
         <m:VBox id="_IDGenVBox">
@@ -30,10 +29,7 @@
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem1" name="D" label="{i18n>POpickuplocation}" groupName="Group1" visibleInFilterBar="true">
                         <fb:control>
-                            <m:MultiComboBox id="_IDGenMultiComboBox" width="100%" items="{
-												path: '/ZI_PARTNER_LOC',
-												templateShareable: true
-											}">
+                            <m:MultiComboBox id="_IDGenMultiComboBox" width="100%" items="{path: '/ZI_PARTNER_LOC',templateShareable: true}">
                                 <core:Item id="_IDGenItem" key="{Location}" text="{LocDescr}"/>
                             </m:MultiComboBox>
                         </fb:control>
@@ -41,7 +37,7 @@
                 </fb:filterGroupItems>
             </fb:FilterBar>
         </m:VBox>
-        <m:IconTabBar id="_IDGenIconTabBar" applyContentPadding="true" tabDensityMode="Inherit" select=".onFilterSelect">
+        <m:IconTabBar id="_IDGenIconTabBar" tabDensityMode="Inherit" select=".onFilterSelect">
             <m:items>
                 <m:IconTabFilter id="_IDGenIconTabFilter" showAll="true" text="All"></m:IconTabFilter>
                 <m:IconTabSeparator id="_IDGenIconTabSeparator"></m:IconTabSeparator>
@@ -50,7 +46,7 @@
             </m:items>
         </m:IconTabBar>
         <m:content>
-            <t:Table id="idPOTable" rows="{path:'POTableModel>/list', sorter:{path: 'BaseBtdId', descending:true}}" rowMode="Auto" columnHeaderVisible="true" showNoData="false" selectionMode="Multi" selectionBehavior="Row">
+            <t:Table id="idPOTable" rows="{path:'POTableModel>/list', sorter:{path: 'BaseBtdId', descending:true}}" enableColumnFreeze="true" fixedColumnCount="3" rowMode="Auto" columnHeaderVisible="true" showNoData="false" selectionMode="Multi" selectionBehavior="Row">
                 <t:extension>
                     <m:OverflowToolbar id="_IDGenOverflowToolbar">
                         <m:Title id="_IDGenTitle1" text="Purchase Order ({=${POTableModel>/list}.length})" titleStyle="H3" class="sapUiTinyMarginBeginEnd"/>
@@ -65,37 +61,7 @@
                             <m:ObjectNumber id="_IDGenText2" number="{POTableModel>BaseBtdId}"></m:ObjectNumber>
                         </t:template>
                     </t:Column>
-                    <t:Column id="_IDGenColumn3" width="8rem" sortProperty="TorId" filterProperty="TorId">
-                        <t:customData>
-                            <core:CustomData key="p13nData"></core:CustomData>
-                        </t:customData>
-                        <m:Label id="_IDGenLabel3" text="{i18n>fuItmNum}"/>
-                        <t:template>
-                            <m:Text id="_IDGenText3" text="{POTableModel>TorId}"/>
-                        </t:template>
-                    </t:Column>
-                    <t:Column id="_IDGenColumn4" width="8rem" sortProperty="ItemId" filterProperty="ItemId">
-                        <t:customData>
-                            <core:CustomData key="p13nData"></core:CustomData>
-                        </t:customData>
-                        <m:Label id="_IDGenLabel4" text="{i18n>fuItemNum}"/>
-                        <t:template>
-                            <m:Text id="_IDGenText4" text="{POTableModel>ItemId}"/>
-                        </t:template>
-                    </t:Column>
-                    <t:Column id="_IDGenColumn5" width="8rem" sortProperty="ProductId" filterProperty="ProductId">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
-                        <m:Label id="_IDGenLabel5" text="{i18n>productId}"/>
-                        <t:template>
-                            <m:Text id="_IDGenText5" text="{POTableModel>ProductId}"/>
-                        </t:template>
-                    </t:Column>
-                    <t:Column id="_IDGenColumn6" width="18rem" sortProperty="ItemDescr" filterProperty="ItemDescr">
-                        <t:customData>
-                            <core:CustomData key="p13nData"></core:CustomData>
-                        </t:customData>
+                    <t:Column id="_IDGenColumn6" width="15rem" sortProperty="ItemDescr" filterProperty="ItemDescr">
                         <m:Label id="_IDGenLabe6" text="{i18n>productDesc}"/>
                         <t:template>
                             <m:Text id="_IDGenText6" text="{POTableModel>ItemDescr}"/>
@@ -103,29 +69,38 @@
                     </t:Column>
                     <!-- PO Quantity -->
                     <t:Column id="_IDGenColumn7" width="6rem" hAlign="Center" sortProperty="QuaPcsVal" filterProperty="QuaPcsVal">
-                        <t:customData>
-                            <core:CustomData key="p13nData"></core:CustomData>
-                        </t:customData>
                         <m:Label id="_IDGenLabel7" text="{i18n>quantity}"/>
                         <t:template>
                             <m:ObjectNumber id="_IDGenObjectNumber7" number="{POTableModel>QuaPcsVal}" unit="{POTableModel>QuaPcsUni}"/>
                         </t:template>
                     </t:Column>
+                    <t:Column id="_IDGenColumn3" width="8rem" sortProperty="TorId" filterProperty="TorId">
+                        <m:Label id="_IDGenLabel3" text="{i18n>fuItmNum}"/>
+                        <t:template>
+                            <m:Text id="_IDGenText3" text="{POTableModel>TorId}"/>
+                        </t:template>
+                    </t:Column>
+                    <t:Column id="_IDGenColumn4" width="8rem" sortProperty="ItemId" filterProperty="ItemId">
+                        <m:Label id="_IDGenLabel4" text="{i18n>fuItemNum}"/>
+                        <t:template>
+                            <m:Text id="_IDGenText4" text="{POTableModel>ItemId}"/>
+                        </t:template>
+                    </t:Column>
+                    <t:Column id="_IDGenColumn5" width="8rem" sortProperty="ProductId" filterProperty="ProductId">
+                        <m:Label id="_IDGenLabel5" text="{i18n>productId}"/>
+                        <t:template>
+                            <m:Text id="_IDGenText5" text="{POTableModel>ProductId}"/>
+                        </t:template>
+                    </t:Column>
                     <!-- PO Pick up Location -->
                     <t:Column id="_IDGenColumn8" width="18rem" sortProperty="SrcLocDescr" filterProperty="SrcLocDescr">
-                        <t:customData>
-                            <core:CustomData key="p13nData"></core:CustomData>
-                        </t:customData>
                         <m:Label id="_IDGenLabel8" text="{i18n>POpickuplocation}"/>
                         <t:template>
                             <m:Text id="_IDGenText8" text="{POTableModel>SrcLocDescr}"></m:Text>
                         </t:template>
                     </t:Column>
-                    <!-- PO Pickup Date (time zone maintain ) -->
+                    <!-- PO Pickup Date -->
                     <t:Column id="_IDGenColumn9" width="12rem" sortProperty="PickupDt" filterProperty="PickupDt">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
                         <m:Label id="idLabPickup9" text="{i18n>PoPickupDt}" />
                         <t:template>
                             <m:HBox id="_IDGenHBox">
@@ -136,9 +111,6 @@
                     </t:Column>
                     <!-- PO Pickup From Date -->
                     <t:Column id="_IDGenColumn29" width="12rem" sortProperty="PicEarAccTrq" filterProperty="PicEarAccTrq">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
                         <m:Label id="idLabPickup29" text="{i18n>PoPickupFromDt}" />
                         <t:template>
                             <m:HBox id="_IDGenHBox2">
@@ -149,9 +121,6 @@
                     </t:Column>
                     <!-- PO Pickup To Date -->
                     <t:Column id="_IDGenColumn39" width="12rem" sortProperty="PicLatAccTrq" filterProperty="PicLatAccTrq">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
                         <m:Label id="idLabPickup39" text="{i18n>PoPickupToDt}" />
                         <t:template>
                             <m:HBox id="_IDGenHBox4">
@@ -162,9 +131,6 @@
                     </t:Column>
                     <!-- PO Destination Location -->
                     <t:Column id="_IDGenColumn10" width="11rem" sortProperty="DesLocDescr" filterProperty="DesLocDescr">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
                         <m:Label id="idLabPickup10" text="{i18n>PoDestinLoc}" />
                         <t:template>
                             <m:Text id="idPodesloc10" text="{POTableModel>DesLocDescr}"></m:Text>
@@ -172,9 +138,6 @@
                     </t:Column>
                     <!-- Po Delivery Date -->
                     <t:Column id="_IDGenColumn11" width="12rem" sortProperty="DeliveryDt" filterProperty="DeliveryDt">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
                         <m:Label id="idLabPickup11" text="{i18n>PoDeliDt}" />
                         <t:template>
                             <m:HBox id="_IDGenHBox6">
@@ -185,22 +148,16 @@
                     </t:Column>
                     <!-- Confirm Quantity $$$$$$$$$$$$$$$$$$$$editttt$$$$$$$$$$$$$$$$$$$$$$$$$$$-->
                     <t:Column id="_IDGenColumn12" width="8rem" sortProperty="PkgQuaPcsVal" filterProperty="PkgQuaPcsVal">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
                         <m:Label id="_IDGenLabel12" text="{i18n>confipackageQty}" required="true"/>
                         <t:template>
                             <m:HBox id="_IDGenHBox12">
                                 <m:Input id="confQtyId" width="4rem" value="{POTableModel>PkgQuaPcsVal}" type="Number" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }"/>
-                                <m:Input id="confQty" value="{POTableModel>PkgQuaPcsUni}" type="Text" editable="{= ${POTableModel>ReadOnly} !== 'X' }" />
+                                <m:Input id="confQty" value="{POTableModel>PkgQuaPcsUni}" type="Text" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }" />
                             </m:HBox>
                         </t:template>
                     </t:Column>
                     <!-- Package Quantity -->
                     <t:Column id="_IDGenColumn13" width="8rem" sortProperty="PkgPcsVal" filterProperty="PkgPcsVal">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
                         <m:Label id="_IDGenLabel13" text="{i18n>packageQty}" required="true"/>
                         <t:template>
                             <m:HBox id="_IDGenHBox3">
@@ -209,10 +166,7 @@
                         </t:template>
                     </t:Column>
                     <!-- Package Type -->
-                    <t:Column id="_IDGenColumn16" width="8rem">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
+                    <t:Column id="_IDGenColumn16" width="8rem" sortProperty="PkgPcsUni" filterProperty="PkgPcsUni">
                         <m:Label id="_IDGenLabel16" text="{i18n>packageType}" required="true"/>
                         <t:template>
                             <m:ComboBox id="comboBox_PkgPcsUni" selectedKey="{POTableModel>PkgPcsUni}" items="{path:'/ZI_PkgUnitOfMeasureVH',templateShareable:false}" showSecondaryValues="true" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
@@ -222,34 +176,25 @@
                     </t:Column>
                     <!-- Package Dimensions -->
                     <t:Column id="_IDGenColumn14" width="16rem" sortProperty="PkgLength" filterProperty="PkgLength">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
-                        <m:Label id="_IDGenLabel14" text="{i18n>dimensions}" />
+                        <m:Label id="_IDGenLabel14" text="{i18n>dimensions}" required="true" />
                         <t:template >
                             <m:HBox id="_IDGenHBox1">
                                 <m:Input id="lengthId" value="{POTableModel>PkgLength}" type="Number" editable="{= ${POTableModel>ReadOnly} !== 'X' }" required="true" />
                                 <m:Input id="widthId" value="{POTableModel>PkgWidth}" type="Number" editable="{= ${POTableModel>ReadOnly} !== 'X' }" required="true" />
                                 <m:Input id="heightId" value="{POTableModel>PkgHeight}" type="Number" editable="{= ${POTableModel>ReadOnly} !== 'X' }" required="true"/>
-                                <m:ComboBox id="_IDGenComboBox14" value="{POTableModel>PkgMeasuom}" items="{path:'/ZI_DimUnitOfMeasureVH',templateShareable:false}" showSecondaryValues="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
+                                <m:ComboBox id="_IDGenComboBox14" value="{POTableModel>PkgMeasuom}" required="true" items="{path:'/ZI_DimUnitOfMeasureVH',templateShareable:false}" showSecondaryValues="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
                                     <core:ListItem id="_IDGenListItem5" key="{UnitOfMeasure}" text="{UnitOfMeasure}" additionalText="{UnitOfMeasureLongName}" />
-                                    <!-- <core:ListItem id="_IDGenListItem1" key="CM" text="CM" additionalText="Centimeter"/>
-                                    <core:ListItem id="_IDGenListItem2" key="M" text="M" additionalText="Meter"/>
-                                    <core:ListItem id="_IDGenListItem5" key="FT" text="FT" additionalText="Foot"/> -->
                                 </m:ComboBox>
                             </m:HBox>
                         </t:template>
                     </t:Column>
                     <!-- Package Weight  -->
                     <t:Column id="_IDGenColumn15" width="10rem" sortProperty="PkgWeiVal" filterProperty="PkgWeiVal">
-                        <t:customData>
-                            <core:CustomData key="p13nData" value='{"columnKey": "PkgWeiVal" , "leadingProperty":"PkgWeiVal"}'/>
-                        </t:customData>
-                        <m:Label id="_IDGenLabel15" text="{i18n>weight}" />
+                        <m:Label id="_IDGenLabel15" text="{i18n>weight}" required="true" />
                         <t:template>
                             <m:HBox id="_IDGenHBox15">
-                                <m:Input id="weightId" value="{POTableModel>PkgWeiVal}" type="Number" editable="{= ${POTableModel>ReadOnly} !== 'X' }" />
-                                <m:ComboBox id="_IDGenComboBox2" value="{POTableModel>PkgWeiUni}" showSecondaryValues="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
+                                <m:Input id="weightId" value="{POTableModel>PkgWeiVal}" type="Number" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }" />
+                                <m:ComboBox id="_IDGenComboBox2" value="{POTableModel>PkgWeiUni}" required="true" showSecondaryValues="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
                                     <core:ListItem id="_IDGenListItem2.1" key="LB" text="LB" additionalText="Pound"/>
                                     <core:ListItem id="_IDGenListItem2.2" key="G" text="G" additionalText="Gram"/>
                                     <core:ListItem id="_IDGenListItem2.3" key="KG" text="KG" additionalText="Kilogram"/>
@@ -259,9 +204,6 @@
                     </t:Column>
                     <!-- Package ID -->
                     <t:Column id="_IDGenColumn17" width="8rem" sortProperty="PkgId" filterProperty="PkgId">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
                         <m:Label id="_IDGenLabel17" text="{i18n>packageid}" required="true"/>
                         <t:template>
                             <m:Input id="packMatInfoId17" value="{POTableModel>PkgId}" editable="{= ${POTableModel>ReadOnly} !== 'X' }" required="true"/>
@@ -269,35 +211,23 @@
                     </t:Column>
                     <!-- Pick up Location -->
                     <t:Column id="_IDGenColumn19" width="15rem" sortProperty="PkgSrcLoc" filterProperty="PkgSrcLoc">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
-                        <m:Label id="_IDGenLabel19" text="{i18n>pickupLoc}" />
+                        <m:Label id="_IDGenLabel19" text="{i18n>pickupLoc}" required="true" />
                         <t:template>
-                            <!-- <m:Select id="_IDGenComboBox20" change="onLocationChange" liveChange="onLocationChange" width="300px" selectedKey="{POTableModel>PkgSrcLoc}" editable="{= ${POTableModel>ReadOnly} !== 'X' }" items="{POTableModel>to_Shipper/results}">
-                                    <core:Item id="_IDGenListItem20" key="{POTableModel>Location}" text="{POTableModel>LocDescr}"></core:Item>
-                                     </m:Select> -->
-                            <m:ComboBox id="_IDGenComboBox20" width="300px" selectedKey="{POTableModel>PkgSrcLoc}" editable="{= ${POTableModel>ReadOnly} !== 'X' }" items="{path:'POTableModel>to_Shipper/results',templateShareable:false}">
+                            <m:ComboBox id="_IDGenComboBox20" width="300px" required="true" selectedKey="{POTableModel>PkgSrcLoc}" editable="{= ${POTableModel>ReadOnly} !== 'X' }" items="{path:'POTableModel>to_Shipper/results',templateShareable:false}">
                                 <core:ListItem id="_IDGenListItem20" key="{POTableModel>Location}" text="{POTableModel>LocDescr}"></core:ListItem>
                             </m:ComboBox>
                         </t:template>
                     </t:Column>
                     <!-- Pick up date -->
                     <t:Column id="_IDGenColumn18" width="15rem" sortProperty="PkgPickupDt" filterProperty="PkgPickupDt">
-                        <t:customData>
-                            <core:CustomData key="p13nData" />
-                        </t:customData>
                         <m:Label id="idLabPickup18" text="{i18n>pickupdate}" required="true"/>
                         <t:template>
-                            <m:DateTimePicker id="pickUpDateId" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type:'sap.ui.model.type.DateTime'}"/>
+                            <m:DateTimePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type:'sap.ui.model.type.DateTime'}"/>
                         </t:template>
                     </t:Column>
                     <!-- Reefer Comply -->
                     <t:Column id="_IDGenColumn21" width="8rem" sortProperty="PkgReeferComply" filterProperty="PkgReeferComply">
-                        <t:customData>
-                            <core:CustomData key="p13nData"></core:CustomData>
-                        </t:customData>
-                        <m:Label id="_IDGenLabel21" text="{i18n>reefComply}"/>
+                        <m:Label id="_IDGenLabel21" text="{i18n>reefComply}" />
                         <t:template>
                             <m:CheckBox id="idreefComply" editable="{= ${POTableModel>ReadOnly} !== 'X' }" selected="{POTableModel>PkgReeferComply}" valueState="Information"></m:CheckBox>
                         </t:template>

@@ -27,7 +27,7 @@
                             <core:ListItem id="_IDGenListItem10" key="KG" text="KG" additionalText="Kilogram"/>
                         </ComboBox>
                         <Label id="_IDGenLabel22" text="{i18n>packageid}"/>
-                        <Input id="pkgId" type="Number" required="true"/>
+                        <Input id="pkgId" required="true"/>
                         <core:Title id="_IDGenTitle2" text="{i18n>pickUpDetails}"/>
                         <Label id="_IDGenLabel11" text="{i18n>pickupLoc}"/>
                         <ComboBox id="inputLoc" required="true"/>
