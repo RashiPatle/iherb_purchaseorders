@@ -46,7 +46,7 @@
             </m:items>
         </m:IconTabBar>
         <m:content>
-            <t:Table id="idPOTable" rows="{path:'POTableModel>/list', sorter:{path: 'BaseBtdId', descending:true}}" enableColumnFreeze="true" fixedColumnCount="3" rowMode="Auto" columnHeaderVisible="true" showNoData="false" selectionMode="Multi" selectionBehavior="Row">
+            <t:Table id="idPOTable" rows="{path:'POTableModel>/list', sorter:{path: 'BaseBtdId', descending:true}}" enableColumnFreeze="true" fixedColumnCount="5" rowMode="Auto" columnHeaderVisible="true" showNoData="false" selectionMode="Multi" selectionBehavior="Row">
                 <t:extension>
                     <m:OverflowToolbar id="_IDGenOverflowToolbar">
                         <m:Title id="_IDGenTitle1" text="Purchase Order ({=${POTableModel>/list}.length})" titleStyle="H3" class="sapUiTinyMarginBeginEnd"/>
@@ -74,41 +74,6 @@
                             <m:ObjectNumber id="_IDGenObjectNumber7" number="{POTableModel>QuaPcsVal}" unit="{POTableModel>QuaPcsUni}"/>
                         </t:template>
                     </t:Column>
-                    <t:Column id="_IDGenColumn3" width="8rem" sortProperty="TorId" filterProperty="TorId">
-                        <m:Label id="_IDGenLabel3" text="{i18n>fuItmNum}"/>
-                        <t:template>
-                            <m:Text id="_IDGenText3" text="{POTableModel>TorId}"/>
-                        </t:template>
-                    </t:Column>
-                    <t:Column id="_IDGenColumn4" width="8rem" sortProperty="ItemId" filterProperty="ItemId">
-                        <m:Label id="_IDGenLabel4" text="{i18n>fuItemNum}"/>
-                        <t:template>
-                            <m:Text id="_IDGenText4" text="{POTableModel>ItemId}"/>
-                        </t:template>
-                    </t:Column>
-                    <t:Column id="_IDGenColumn5" width="8rem" sortProperty="ProductId" filterProperty="ProductId">
-                        <m:Label id="_IDGenLabel5" text="{i18n>productId}"/>
-                        <t:template>
-                            <m:Text id="_IDGenText5" text="{POTableModel>ProductId}"/>
-                        </t:template>
-                    </t:Column>
-                    <!-- PO Pick up Location -->
-                    <t:Column id="_IDGenColumn8" width="18rem" sortProperty="SrcLocDescr" filterProperty="SrcLocDescr">
-                        <m:Label id="_IDGenLabel8" text="{i18n>POpickuplocation}"/>
-                        <t:template>
-                            <m:Text id="_IDGenText8" text="{POTableModel>SrcLocDescr}"></m:Text>
-                        </t:template>
-                    </t:Column>
-                    <!-- PO Pickup Date -->
-                    <t:Column id="_IDGenColumn9" width="12rem" sortProperty="PickupDt" filterProperty="PickupDt">
-                        <m:Label id="idLabPickup9" text="{i18n>PoPickupDt}" />
-                        <t:template>
-                            <m:HBox id="_IDGenHBox">
-                                <m:Text id="idPoPickDt9" class="sapUiSmallMarginEnd" text="{path:'POTableModel>PickupDtCST'}"></m:Text>
-                                <m:Text id="_IDGenText1" text="{path:'POTableModel>SrcTzone'}"></m:Text>
-                            </m:HBox>
-                        </t:template>
-                    </t:Column>
                     <!-- PO Pickup From Date -->
                     <t:Column id="_IDGenColumn29" width="12rem" sortProperty="PicEarAccTrq" filterProperty="PicEarAccTrq">
                         <m:Label id="idLabPickup29" text="{i18n>PoPickupFromDt}" />
@@ -129,6 +94,41 @@
                             </m:HBox>
                         </t:template>
                     </t:Column>
+                    <t:Column id="_IDGenColumn3" width="6rem" sortProperty="TorId" filterProperty="TorId">
+                        <m:Label id="_IDGenLabel3" text="{i18n>fuItmNum}"/>
+                        <t:template>
+                            <m:Text id="_IDGenText3" text="{POTableModel>TorId}"/>
+                        </t:template>
+                    </t:Column>
+                    <t:Column id="_IDGenColumn4" width="6rem" sortProperty="ItemId" filterProperty="ItemId">
+                        <m:Label id="_IDGenLabel4" text="{i18n>fuItemNum}"/>
+                        <t:template>
+                            <m:Text id="_IDGenText4" text="{POTableModel>ItemId}"/>
+                        </t:template>
+                    </t:Column>
+                    <t:Column id="_IDGenColumn5" width="6rem" sortProperty="ProductId" filterProperty="ProductId">
+                        <m:Label id="_IDGenLabel5" text="{i18n>productId}"/>
+                        <t:template>
+                            <m:Text id="_IDGenText5" text="{POTableModel>ProductId}"/>
+                        </t:template>
+                    </t:Column>
+                    <!-- PO Pick up Location -->
+                    <t:Column id="_IDGenColumn8" width="18rem" sortProperty="SrcLocDescr" filterProperty="SrcLocDescr">
+                        <m:Label id="_IDGenLabel8" text="{i18n>POpickuplocation}"/>
+                        <t:template>
+                            <m:Text id="_IDGenText8" text="{POTableModel>SrcLocDescr}"></m:Text>
+                        </t:template>
+                    </t:Column>
+                    <!-- PO Pickup Date
+                    <t:Column id="_IDGenColumn9" width="12rem" sortProperty="PickupDt" filterProperty="PickupDt">
+                        <m:Label id="idLabPickup9" text="{i18n>PoPickupDt}" />
+                        <t:template>
+                            <m:HBox id="_IDGenHBox">
+                                <m:Text id="idPoPickDt9" class="sapUiSmallMarginEnd" text="{path:'POTableModel>PickupDtCST'}"></m:Text>
+                                <m:Text id="_IDGenText1" text="{path:'POTableModel>SrcTzone'}"></m:Text>
+                            </m:HBox>
+                        </t:template>
+                    </t:Column> -->
                     <!-- PO Destination Location -->
                     <t:Column id="_IDGenColumn10" width="11rem" sortProperty="DesLocDescr" filterProperty="DesLocDescr">
                         <m:Label id="idLabPickup10" text="{i18n>PoDestinLoc}" />

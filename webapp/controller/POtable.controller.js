@@ -35,25 +35,6 @@ sap.ui.define([
                     sap.ui.core.BusyIndicator.hide();
                     if (oData.results) {
                         oData.results.forEach(item => {
-                            if (item.PickupDt) {
-                                let utcDate = new Date(item.PickupDt);
-                                // Convert UTC to CST in 24-hour format
-                                let cstDate = utcDate.toLocaleString("en-US", {
-                                    timeZone: "America/Chicago",
-                                    hour12: false,
-                                    year: "numeric",
-                                    month: "2-digit",
-                                    day: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    second: "2-digit"
-                                }).replace(",", "");
-                                item.PickupDtCST = cstDate;
-                            }
-                        });
-                    }
-                    if (oData.results) {
-                        oData.results.forEach(item => {
                             if (item.DeliveryDt) {
                                 let utcDate = new Date(item.DeliveryDt);
                                 // Convert UTC to PST in 24-hour format
