@@ -3,10 +3,12 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-], (Controller, MessageToast, Filter, FilterOperator) => {
+    "com/iherb/tm/ztmiherbpurchaseorders/model/formatter"
+], (Controller, MessageToast, Filter, FilterOperator, formatter) => {
     "use strict";
 
     return Controller.extend("com.iherb.tm.ztmiherbpurchaseorders.controller.POtable", {
+        formatter: formatter,
         onInit() {
             var oTable = this.byId("idPOTable");
             oTable.attachRowSelectionChange(this._handleRowSelection.bind(this));
@@ -91,6 +93,7 @@ sap.ui.define([
                         });
                     }
                     if (oData.results) {
+                        debugger
                         oData.results.forEach(item => {
                             if (item.PkgPickupDt && item.PkgTzone) {
                                 const timeZone = timeZoneMap[item.PkgTzone] || "UTC";
@@ -152,6 +155,16 @@ sap.ui.define([
             });
         },
 
+        // getTimeZoneOff: function (timeZone) {
+        //     debugger
+        //     const offsets = {
+        //         "CST": 5,
+        //         "PST": 7,
+        //         "MST": 7
+        //     };
+        //     return offsets[timeZone] * 60 * 60 * 1000;
+        // },
+
         _handleRowSelection: function (oEvent) {
             var oTable = this.byId("idPOTable");
             let selectedIndex = oEvent.getParameter("rowIndex");
@@ -207,60 +220,60 @@ sap.ui.define([
                 sap.ui.core.BusyIndicator.hide();
                 sap.m.MessageBox.show("Please select a row first.");
                 return;
-            } else {
-                for (let i = 0; i < oSelIndices.length; i++) {
-                    var oContext = oTable.getContextByIndex(oSelIndices[i]);
-                    var oFreightOrder = oContext.getObject();
-                    var sFO = oFreightOrder.DbKey;
-
-                    let selectedDate = oFreightOrder.PkgPickupDt;
-                    let selectedLocation = oFreightOrder.PkgSrcLoc;
-                    let timeZone = aLocations.find(loc => loc.Location === selectedLocation)?.Tzone || "UTC";
-
-                    let utcDate = this.convertDateToUTC(selectedDate, timeZone);
-                    // let utcDate = this.convertDateUTC(selectedDate, timeZone);
-                    console.log(utcDate, "UTC converted date")
-
-                    var sPOPayload = {
-                        "DbKey": sFO,
-                        "TorId": oFreightOrder.TorId,
-                        "PkgQuaPcsVal": oFreightOrder.PkgQuaPcsVal,
-                        "PkgQuaPcsUni": oFreightOrder.PkgQuaPcsUni,
-                        "PkgPcsVal": oFreightOrder.PkgPcsVal,
-                        "PkgPcsUni": oFreightOrder.PkgPcsUni,
-                        "PkgLength": oFreightOrder.PkgLength,
-                        "PkgWidth": oFreightOrder.PkgWidth,
-                        "PkgHeight": oFreightOrder.PkgHeight,
-                        "PkgMeasuom": oFreightOrder.PkgMeasuom,
-                        "PkgWeiVal": oFreightOrder.PkgWeiVal,
-                        "PkgWeiUni": oFreightOrder.PkgWeiUni,
-                        "PkgId": oFreightOrder.PkgId,
-                        "PkgPickupDt": utcDate, // for backend
-                        "PkgReeferComply": oFreightOrder.PkgReeferComply,
-                        "PkgSrcLoc": oFreightOrder.PkgSrcLoc
-                    };
-                    var path = "/ZC_FuTorItem(guid'" + sFO + "')";
-                    oUpdateModel.update(path, sPOPayload, {
-                        success: function (oData, response) {
-                            sap.ui.core.BusyIndicator.hide();
-                            MessageToast.show("Freight Unit " + oFreightOrder.TorId + " Updated successfully");
-                            that.onReadOdata();
-                            oUpdateModel.refresh();
-                        },
-                        error: function (oError) {
-                            sap.ui.core.BusyIndicator.hide();
-                            var sMessage = "Error creating product";
-                            try {
-                                var oErr = JSON.parse(oError.responseText);
-                                sMessage = oErr.error.message.value;
-                            } catch (e) { }
-                            MessageToast.show(sMessage, { duration: 10000, width: "25em", });
-
-                            // MessageToast.show("Error " + oFreightOrder.TorId + "Update request failed");
-                        },
-                    });
-                }
             }
+
+            for (let i = 0; i < oSelIndices.length; i++) {
+                var oContext = oTable.getContextByIndex(oSelIndices[i]);
+                var oFreightOrder = oContext.getObject();
+                var sFO = oFreightOrder.DbKey;
+
+                let selectedDate = oFreightOrder.PkgPickupDt;
+                let selectedLocation = oFreightOrder.PkgSrcLoc;
+                let timeZone = aLocations.find(loc => loc.Location === selectedLocation)?.Tzone || "UTC";
+
+                let utcDate = this.convertDateToUTC(selectedDate, timeZone);
+                // let utcDate = this.convertDateUTC(selectedDate, timeZone);
+                console.log(utcDate, "UTC converted date")
+
+                var sPOPayload = {
+                    "DbKey": sFO,
+                    "TorId": oFreightOrder.TorId,
+                    "PkgQuaPcsVal": oFreightOrder.PkgQuaPcsVal,
+                    "PkgQuaPcsUni": oFreightOrder.PkgQuaPcsUni,
+                    "PkgPcsVal": oFreightOrder.PkgPcsVal,
+                    "PkgPcsUni": oFreightOrder.PkgPcsUni,
+                    "PkgLength": oFreightOrder.PkgLength,
+                    "PkgWidth": oFreightOrder.PkgWidth,
+                    "PkgHeight": oFreightOrder.PkgHeight,
+                    "PkgMeasuom": oFreightOrder.PkgMeasuom,
+                    "PkgWeiVal": oFreightOrder.PkgWeiVal,
+                    "PkgWeiUni": oFreightOrder.PkgWeiUni,
+                    "PkgId": oFreightOrder.PkgId,
+                    "PkgPickupDt": utcDate, // for backend
+                    "PkgReeferComply": oFreightOrder.PkgReeferComply,
+                    "PkgSrcLoc": oFreightOrder.PkgSrcLoc
+                };
+                var path = "/ZC_FuTorItem(guid'" + sFO + "')";
+                oUpdateModel.update(path, sPOPayload, {
+                    success: function (oData, response) {
+                        sap.ui.core.BusyIndicator.hide();
+                        MessageToast.show("Freight Unit " + oFreightOrder.TorId + " Updated successfully");
+                        that.onReadOdata();
+                    },
+                    error: function (oError) {
+                        sap.ui.core.BusyIndicator.hide();
+                        var sMessage = "Error creating product";
+                        try {
+                            var oErr = JSON.parse(oError.responseText);
+                            sMessage = oErr.error.message.value;
+                        } catch (e) { }
+                        MessageToast.show(sMessage, { duration: 10000, width: "25em", });
+                        // MessageToast.show("Error " + oFreightOrder.TorId + "Update request failed");
+                    },
+                });
+                // that.onReadOdata();
+            }
+
         },
 
         convertDateToUTC: function (localDate, timeZone) {
@@ -288,7 +301,6 @@ sap.ui.define([
         },
 
         onFilterSelect: function (oEvent) {
-            debugger
             var oTable = this.byId("idPOTable");
             var oBinding = oTable.getBinding("rows");
             var sKey = oEvent.getParameter("key"),
@@ -300,7 +312,16 @@ sap.ui.define([
             } else if (sKey === 'non-Editable') {
                 aFilters.push(new Filter("ReadOnly", "EQ", ""));
             }
-            oBinding.filter(aFilters);
+            if (oBinding) {
+                oBinding.filter(aFilters);
+                oBinding.refresh(true);
+                setTimeout(() => {
+                    var iIconTabFilterCount = oBinding.getLength();
+                    this.getView().byId("_IDGenTitle1").setText("Purchase Order (" + iIconTabFilterCount + ")");
+                }, 100);
+            } else {
+                console.error("Table binding is null. Ensure correct model binding.");
+            }
         },
 
         clearSelect: function (oTable) {

@@ -41,8 +41,8 @@
             <m:items>
                 <m:IconTabFilter id="_IDGenIconTabFilter" showAll="true" text="All"></m:IconTabFilter>
                 <m:IconTabSeparator id="_IDGenIconTabSeparator"></m:IconTabSeparator>
-                <m:IconTabFilter id="_IDGenIconTabFilter2" iconColor="Critical" icon="sap-icon://pending" text="Pending" key="non-Editable"></m:IconTabFilter>
-                <m:IconTabFilter id="_IDGenIconTabFilter1" iconColor="Positive" icon="sap-icon://complete" text="Completed" key="Editable"></m:IconTabFilter>
+                <m:IconTabFilter id="_IDGenIconTabFilter2" count="{POTableModel>/list/ReadOnly}" iconColor="Critical" icon="sap-icon://pending" text="Pending" key="non-Editable"></m:IconTabFilter>
+                <m:IconTabFilter id="_IDGenIconTabFilter1" count="{POTableModel>/list/ReadOnly}" iconColor="Positive" icon="sap-icon://complete" text="Completed" key="Editable"></m:IconTabFilter>
             </m:items>
         </m:IconTabBar>
         <m:content>
@@ -98,6 +98,12 @@
                         <m:Label id="_IDGenLabel3" text="{i18n>fuItmNum}"/>
                         <t:template>
                             <m:Text id="_IDGenText3" text="{POTableModel>TorId}"/>
+                        </t:template>
+                    </t:Column>
+                    <t:Column id="_IDGenColumn24" width="8rem" sortProperty="FoTorId" filterProperty="FoTorId">
+                        <m:Label id="_IDGenLabe24" text="{i18n>foItm}"/>
+                        <t:template>
+                            <m:Text id="_IDGenText14" text="{POTableModel>FoTorId}"/>
                         </t:template>
                     </t:Column>
                     <t:Column id="_IDGenColumn4" width="6rem" sortProperty="ItemId" filterProperty="ItemId">
@@ -222,7 +228,7 @@
                     <t:Column id="_IDGenColumn18" width="15rem" sortProperty="PkgPickupDt" filterProperty="PkgPickupDt">
                         <m:Label id="idLabPickup18" text="{i18n>pickupdate}" required="true"/>
                         <t:template>
-                            <m:DateTimePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type:'sap.ui.model.type.DateTime'}"/>
+                            <m:DateTimePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type:'sap.ui.model.type.DateTime'}" timezone="{ path: 'POTableModel>PkgTzone'}"/>
                         </t:template>
                     </t:Column>
                     <!-- Reefer Comply -->
