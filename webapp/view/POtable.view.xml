@@ -29,7 +29,7 @@
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem1" name="D" label="{i18n>POpickuplocation}" groupName="Group1" visibleInFilterBar="true">
                         <fb:control>
-                            <m:MultiComboBox id="_IDGenMultiComboBox" width="100%" items="{path: '/ZI_PARTNER_LOC',templateShareable: true}">
+                            <m:MultiComboBox id="_IDGenMultiComboBox" width="100%" items="{path:'/ZI_PARTNER_LOC'}">
                                 <core:Item id="_IDGenItem" key="{Location}" text="{LocDescr}"/>
                             </m:MultiComboBox>
                         </fb:control>
