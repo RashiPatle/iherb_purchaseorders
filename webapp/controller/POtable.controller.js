@@ -3,34 +3,27 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "com/iherb/tm/ztmiherbpurchaseorders/model/formatter"
-], (Controller, MessageToast, Filter, FilterOperator, formatter) => {
+], (Controller, MessageToast, Filter, FilterOperator) => {
     "use strict";
 
     return Controller.extend("com.iherb.tm.ztmiherbpurchaseorders.controller.POtable", {
-        formatter: formatter,
         onInit() {
             var oTable = this.byId("idPOTable");
             oTable.attachRowSelectionChange(this._handleRowSelection.bind(this));
             this._oPOTableModel = new sap.ui.model.json.JSONModel();
             this.getView().setModel(this._oPOTableModel, "POTableModel");
-            this.getView().getModel("POTableModel").setSizeLimit(500);
+            this.getView().getModel("POTableModel").setSizeLimit(2000);
             this.onReadOdata();
         },
 
         onReadOdata: function () {
             var that = this;
             sap.ui.core.BusyIndicator.show();
-            const timeZoneMap = {
-                "CST": "America/Chicago",
-                "PST": "America/Los_Angeles",
-                "MST": "America/Denver"
-            };
             var oModel = this.getView().getModel("POTableModel");
             var oDataModel = this.getOwnerComponent().getModel();
             oDataModel.read("/ZC_FuTorItem", {
                 urlParameters: {
-                    "$top": 500,
+                    "$top": 2000,
                     "$expand": 'to_Shipper'
                 },
                 success: function (oData) {
@@ -96,40 +89,14 @@ sap.ui.define([
                         debugger
                         oData.results.forEach(item => {
                             if (item.PkgPickupDt && item.PkgTzone) {
-                                const timeZone = timeZoneMap[item.PkgTzone] || "UTC";
-                                const utcDate = new Date(item.PkgPickupDt);
-                                var oFormatter = sap.ui.core.format.DateFormat.getDateTimeInstance({
-                                    pattern: "yyyy/MM/dd HH:mm:ss"
-                                });
-                                const formatter = new Intl.DateTimeFormat("en-US", {
-                                    timeZone,
-                                    hour12: false,
-                                    year: "numeric",
-                                    month: "2-digit",
-                                    day: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                    second: "2-digit"
-                                });
-                                console.log("after GET Call:", utcDate)
-                                const parts = formatter.formatToParts(utcDate);
-                                const getPart = type => parts.find(p => p.type === type)?.value;
-
-                                const year = parseInt(getPart("year"));
-                                const month = parseInt(getPart("month"));
-                                const day = parseInt(getPart("day"));
-                                const hour = parseInt(getPart("hour"));
-                                const minute = parseInt(getPart("minute"));
-                                const second = parseInt(getPart("second"));
-
-                                const converted = new Date(year, month - 1, day, hour, minute, second);    // Build a date in UTC, not local
-
-                                let formattedCST = oFormatter.format(converted);
-                                // item.PkgPickupDt = formattedCST;
-
-                                item.PkgPickupDt = converted;
-                                console.log("Final JS Date formattedCST--:", formattedCST);
-                                console.log("Final JS Date converted--:", converted);
+                                const timeZoneMap = {
+                                    "CST": "America/Chicago",
+                                    "PST": "America/Los_Angeles",
+                                    "MST": "America/Denver"
+                                };
+                    
+                                const tz = timeZoneMap[item.PkgTzone] || "UTC";
+                                item.PkgPickupDt = this.convertUTCToLocalDate(item.PkgPickupDt, tz); // Date object!
                             }
                         });
                     }
@@ -137,7 +104,6 @@ sap.ui.define([
                     oModel.setSizeLimit(oData.results.length);
                     oModel.setProperty("/OriginalList", oData.results);
                     console.log("PO OData loaded/Response:", oData);
-                    console.log("Updated PO Data with CST Date:", oData);
                 }.bind(this),
                 error: function (oError) {
                     sap.ui.core.BusyIndicator.hide();
@@ -155,15 +121,27 @@ sap.ui.define([
             });
         },
 
-        // getTimeZoneOff: function (timeZone) {
-        //     debugger
-        //     const offsets = {
-        //         "CST": 5,
-        //         "PST": 7,
-        //         "MST": 7
-        //     };
-        //     return offsets[timeZone] * 60 * 60 * 1000;
-        // },
+        convertUTCToLocalDate: function (utcDateStr, timeZone) {
+            debugger
+            const date = new Date(utcDateStr); // This is already in UTC
+
+            const options = {
+                timeZone: timeZone, // e.g., 'America/Chicago' for CST
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false
+            };
+
+            const formatter = new Intl.DateTimeFormat('en-US', options);
+            const parts = formatter.formatToParts(date);
+
+            const getPart = (name) => parts.find(p => p.type === name)?.value;
+
+            // Reconstruct to ISO string
+            const localDateStr = `${getPart('year')}-${getPart('month')}-${getPart('day')}T${getPart('hour')}:${getPart('minute')}:${getPart('second')}`;
+
+            return new Date(localDateStr);
+        },
 
         _handleRowSelection: function (oEvent) {
             var oTable = this.byId("idPOTable");
@@ -268,10 +246,8 @@ sap.ui.define([
                             sMessage = oErr.error.message.value;
                         } catch (e) { }
                         MessageToast.show(sMessage, { duration: 10000, width: "25em", });
-                        // MessageToast.show("Error " + oFreightOrder.TorId + "Update request failed");
                     },
                 });
-                // that.onReadOdata();
             }
 
         },
