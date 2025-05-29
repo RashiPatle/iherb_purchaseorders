@@ -125,16 +125,6 @@
                             <m:Text id="_IDGenText8" text="{POTableModel>SrcLocDescr}"></m:Text>
                         </t:template>
                     </t:Column>
-                    <!-- PO Pickup Date
-                    <t:Column id="_IDGenColumn9" width="12rem" sortProperty="PickupDt" filterProperty="PickupDt">
-                        <m:Label id="idLabPickup9" text="{i18n>PoPickupDt}" />
-                        <t:template>
-                            <m:HBox id="_IDGenHBox">
-                                <m:Text id="idPoPickDt9" class="sapUiSmallMarginEnd" text="{path:'POTableModel>PickupDtCST'}"></m:Text>
-                                <m:Text id="_IDGenText1" text="{path:'POTableModel>SrcTzone'}"></m:Text>
-                            </m:HBox>
-                        </t:template>
-                    </t:Column> -->
                     <!-- PO Destination Location -->
                     <t:Column id="_IDGenColumn10" width="11rem" sortProperty="DesLocDescr" filterProperty="DesLocDescr">
                         <m:Label id="idLabPickup10" text="{i18n>PoDestinLoc}" />
@@ -228,7 +218,7 @@
                     <t:Column id="_IDGenColumn18" width="15rem" sortProperty="PkgPickupDt" filterProperty="PkgPickupDt">
                         <m:Label id="idLabPickup18" text="{i18n>pickupdate}" required="true"/>
                         <t:template>
-                            <m:DateTimePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type:'sap.ui.model.type.DateTime'}" timezone="{ path: 'POTableModel>PkgTzone'}"/>
+                            <m:DateTimePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type: 'sap.ui.model.type.DateTime'}" showTimezone="true" timezone="{ path: 'POTableModel>PkgTzone'}"/>
                         </t:template>
                     </t:Column>
                     <!-- Reefer Comply -->

@@ -86,17 +86,36 @@ sap.ui.define([
                         });
                     }
                     if (oData.results) {
-                        debugger
-                        oData.results.forEach(item => {
+                        oData.results.forEach(function (item) {
                             if (item.PkgPickupDt && item.PkgTzone) {
                                 const timeZoneMap = {
                                     "CST": "America/Chicago",
                                     "PST": "America/Los_Angeles",
-                                    "MST": "America/Denver"
+                                    "MST": "America/Denver",
+                                    "EST": "America/New_York"
                                 };
-                    
+
                                 const tz = timeZoneMap[item.PkgTzone] || "UTC";
-                                item.PkgPickupDt = this.convertUTCToLocalDate(item.PkgPickupDt, tz); // Date object!
+                                // Step 1: Parse UTC string to Date object
+                                const utcDate = new Date(item.PkgPickupDt);
+                                // Step 2: Format using Intl with given timezone
+                                const formatter = new Intl.DateTimeFormat("en-US", {
+                                    timeZone: tz,
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit",
+                                    hour12: false
+                                });
+
+                                const parts = formatter.formatToParts(utcDate);
+                                const getPart = (type) => parts.find(p => p.type === type)?.value;
+
+                                const localDateStr = `${getPart("year")}-${getPart("month")}-${getPart("day")}T${getPart("hour")}:${getPart("minute")}:${getPart("second")}`;
+                                // Final Date object in target time zone
+                                item.PkgPickupDt = new Date(localDateStr);
                             }
                         });
                     }
@@ -119,28 +138,6 @@ sap.ui.define([
                     console.error("Error fetching locations:", oError);
                 }
             });
-        },
-
-        convertUTCToLocalDate: function (utcDateStr, timeZone) {
-            debugger
-            const date = new Date(utcDateStr); // This is already in UTC
-
-            const options = {
-                timeZone: timeZone, // e.g., 'America/Chicago' for CST
-                year: 'numeric', month: '2-digit', day: '2-digit',
-                hour: '2-digit', minute: '2-digit', second: '2-digit',
-                hour12: false
-            };
-
-            const formatter = new Intl.DateTimeFormat('en-US', options);
-            const parts = formatter.formatToParts(date);
-
-            const getPart = (name) => parts.find(p => p.type === name)?.value;
-
-            // Reconstruct to ISO string
-            const localDateStr = `${getPart('year')}-${getPart('month')}-${getPart('day')}T${getPart('hour')}:${getPart('minute')}:${getPart('second')}`;
-
-            return new Date(localDateStr);
         },
 
         _handleRowSelection: function (oEvent) {
@@ -183,7 +180,6 @@ sap.ui.define([
         },
 
         onSubmitPress: function () {
-            debugger
             sap.ui.core.BusyIndicator.show();
             let that = this;
             let oUpdateModel = this.getView().getModel();
@@ -210,7 +206,6 @@ sap.ui.define([
                 let timeZone = aLocations.find(loc => loc.Location === selectedLocation)?.Tzone || "UTC";
 
                 let utcDate = this.convertDateToUTC(selectedDate, timeZone);
-                // let utcDate = this.convertDateUTC(selectedDate, timeZone);
                 console.log(utcDate, "UTC converted date")
 
                 var sPOPayload = {
@@ -236,7 +231,6 @@ sap.ui.define([
                     success: function (oData, response) {
                         sap.ui.core.BusyIndicator.hide();
                         MessageToast.show("Freight Unit " + oFreightOrder.TorId + " Updated successfully");
-                        that.onReadOdata();
                     },
                     error: function (oError) {
                         sap.ui.core.BusyIndicator.hide();
@@ -249,11 +243,10 @@ sap.ui.define([
                     },
                 });
             }
-
+            that.onReadOdata();
         },
 
         convertDateToUTC: function (localDate, timeZone) {
-            debugger
             var offsetMs = this.getTimeZoneOffsetInMs(timeZone); // e.g., CST = -5 * 60 * 60 * 1000
             var utcTimeMs = localDate.getTime() - offsetMs;
             var finalUTCDate = new Date(utcTimeMs);
@@ -271,7 +264,8 @@ sap.ui.define([
             const offsets = {
                 "CST": -5,
                 "PST": -7,
-                "MST": -7
+                "MST": -7,
+                "EST": -4
             };
             return offsets[timeZone] * 60 * 60 * 1000;
         },
@@ -423,6 +417,7 @@ sap.ui.define([
             var oTable = this.getView().byId("idPOTable");
             var oMultiInput1 = this.byId("multipleConditions1");
             var oMultiInput2 = this.byId("multipleConditions2");
+            var sDate = this.byId("_IDGenDatePicker").getDateValue();
             var aFilters = [];
             if (oMultiInput1) {
                 var aTokens1 = oMultiInput1.getTokens();
@@ -569,9 +564,10 @@ sap.ui.define([
                 aFilters.push(oFilter3);
             }
 
-            var sDate = this.byId("_IDGenDatePicker").getDateValue();
+            debugger
             if (sDate) {
-                aFilters.push(new sap.ui.model.Filter("PkgPickupDt", sap.ui.model.FilterOperator.EQ, sDate));
+                var sISOString = sDate.toISOString();
+                aFilters.push(new sap.ui.model.Filter("PkgPickupDt", sap.ui.model.FilterOperator.EQ, sISOString));
             }
 
             var oBinding = oTable.getBinding("rows");
@@ -637,32 +633,5 @@ sap.ui.define([
         onMultipleConditionsAfterClose: function () {
             this._oMultipleConditionsDialog.destroy();
         },
-
-        convertDateUTC: function (localDateStr, zonedDate) {
-            debugger
-            // if (typeof zonedDate === "string") {
-            //     zonedDate = new Date(zonedDate);
-            // }
-
-            // if (!zonedDate || isNaN(zonedDate.getTime())) {
-            //     console.error("Invalid CST date:", zonedDate);
-            //     return null;
-            // }
-
-            // Convert CST to UTC by adding 6 hours (CST is UTC-6)
-            var utcOffsetMillis = 5 * 60 * 60 * 1000;
-            var utcDate = new Date(localDateStr.getTime() + utcOffsetMillis);
-            var oFormatter = sap.ui.core.format.DateFormat.getDateTimeInstance({
-                pattern: "yyyy-MM-dd'T'HH:mm:ss'Z'"
-            });
-
-            var sFormattedCST = oFormatter.format(utcDate);
-            var sConvertedDate = sFormattedCST.toLocaleString();
-            console.log("Formatted date string UTC sended in backend:", sConvertedDate);
-            return sConvertedDate;
-
-        },
-
-        // **************************END
     });
 });

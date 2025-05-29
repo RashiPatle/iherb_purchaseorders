@@ -1,19 +1,6 @@
-<core:FragmentDefinition
-	xmlns="sap.ui.comp.valuehelpdialog"
+<core:FragmentDefinition xmlns="sap.ui.comp.valuehelpdialog"
 	xmlns:core="sap.ui.core"
 	xmlns:m="sap.m">
-	<ValueHelpDialog id="_IDGenValueHelpDialog1"
-		title="Last Updated On"
-		ok=".onUpdatedOnValueHelpOkPress"
-		cancel=".onUpdatedOnCancelPress"
-		key="UpdatedOn"
-		descriptionKey="UpdatedOn"
-		afterClose=".onUpdatedOnAfterClose"
-		supportRanges="true"
-		supportRangesOnly="true"
-		maxIncludeRanges="1"
-		maxExcludeRanges="0"
-		maxConditions="1"
-		>
-</ValueHelpDialog>
+	<ValueHelpDialog id="_IDGenValueHelpDialog1" title="Last Updated On" ok=".onUpdatedOnValueHelpOkPress" cancel=".onUpdatedOnCancelPress" key="UpdatedOn" descriptionKey="UpdatedOn" afterClose=".onUpdatedOnAfterClose" supportRanges="true" supportRangesOnly="true" maxIncludeRanges="1" maxExcludeRanges="0" maxConditions="1">
+	</ValueHelpDialog>
 </core:FragmentDefinition>
