@@ -413,11 +413,31 @@ sap.ui.define([
             this.oDialogPackItem.close();
         },
 
+        handleDateRangeFilter: function (oEvent) {
+            debugger
+            var oTable = this.getView().byId("idPOTable");
+            var oBinding = oTable.getBinding("rows");
+            var oDateRange = this.byId("_IDGenDatePicker");
+
+            var dStartDate = oDateRange.getDateValue();
+            var dEndDate = oDateRange.getSecondDateValue();
+            var aFilters = [];
+
+            var oFilter = new sap.ui.model.Filter({
+                path: "PkgPickupDt",
+                operator: sap.ui.model.FilterOperator.BT,
+                value1: dStartDate,
+                value2: dEndDate
+            });
+
+            aFilters.push(oFilter);
+            oBinding.filter(aFilters);
+        },
+
         onSearch: function (oEvent) {
             var oTable = this.getView().byId("idPOTable");
             var oMultiInput1 = this.byId("multipleConditions1");
             var oMultiInput2 = this.byId("multipleConditions2");
-            var sDate = this.byId("_IDGenDatePicker").getDateValue();
             var aFilters = [];
             if (oMultiInput1) {
                 var aTokens1 = oMultiInput1.getTokens();
@@ -562,12 +582,6 @@ sap.ui.define([
                     and: false
                 });
                 aFilters.push(oFilter3);
-            }
-
-            debugger
-            if (sDate) {
-                var sISOString = sDate.toISOString();
-                aFilters.push(new sap.ui.model.Filter("PkgPickupDt", sap.ui.model.FilterOperator.EQ, sISOString));
             }
 
             var oBinding = oTable.getBinding("rows");

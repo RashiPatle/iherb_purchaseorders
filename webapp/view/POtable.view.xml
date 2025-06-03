@@ -24,7 +24,7 @@
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem4" name="C" label="{i18n>PickUpLabel}" groupName="Group1" visibleInFilterBar="true">
                         <fb:control>
-                            <m:DatePicker id="_IDGenDatePicker" width="100%"></m:DatePicker>
+                            <m:DateRangeSelection id="_IDGenDatePicker" showCurrentDateButton="true" showFooter="true" change="handleDateRangeFilter" width="100%"></m:DateRangeSelection >
                         </fb:control>
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem1" name="D" label="{i18n>POpickuplocation}" groupName="Group1" visibleInFilterBar="true">
@@ -67,14 +67,12 @@
                             <m:Text id="_IDGenText6" text="{POTableModel>ItemDescr}"/>
                         </t:template>
                     </t:Column>
-                    <!-- PO Quantity -->
                     <t:Column id="_IDGenColumn7" width="6rem" hAlign="Center" sortProperty="QuaPcsVal" filterProperty="QuaPcsVal">
                         <m:Label id="_IDGenLabel7" text="{i18n>quantity}"/>
                         <t:template>
                             <m:ObjectNumber id="_IDGenObjectNumber7" number="{POTableModel>QuaPcsVal}" unit="{POTableModel>QuaPcsUni}"/>
                         </t:template>
                     </t:Column>
-                    <!-- PO Pickup From Date -->
                     <t:Column id="_IDGenColumn29" width="12rem" sortProperty="PicEarAccTrq" filterProperty="PicEarAccTrq">
                         <m:Label id="idLabPickup29" text="{i18n>PoPickupFromDt}" />
                         <t:template>
@@ -84,7 +82,6 @@
                             </m:HBox>
                         </t:template>
                     </t:Column>
-                    <!-- PO Pickup To Date -->
                     <t:Column id="_IDGenColumn39" width="12rem" sortProperty="PicLatAccTrq" filterProperty="PicLatAccTrq">
                         <m:Label id="idLabPickup39" text="{i18n>PoPickupToDt}" />
                         <t:template>
@@ -118,21 +115,18 @@
                             <m:Text id="_IDGenText5" text="{POTableModel>ProductId}"/>
                         </t:template>
                     </t:Column>
-                    <!-- PO Pick up Location -->
                     <t:Column id="_IDGenColumn8" width="18rem" sortProperty="SrcLocDescr" filterProperty="SrcLocDescr">
                         <m:Label id="_IDGenLabel8" text="{i18n>POpickuplocation}"/>
                         <t:template>
                             <m:Text id="_IDGenText8" text="{POTableModel>SrcLocDescr}"></m:Text>
                         </t:template>
                     </t:Column>
-                    <!-- PO Destination Location -->
                     <t:Column id="_IDGenColumn10" width="11rem" sortProperty="DesLocDescr" filterProperty="DesLocDescr">
                         <m:Label id="idLabPickup10" text="{i18n>PoDestinLoc}" />
                         <t:template>
                             <m:Text id="idPodesloc10" text="{POTableModel>DesLocDescr}"></m:Text>
                         </t:template>
                     </t:Column>
-                    <!-- Po Delivery Date -->
                     <t:Column id="_IDGenColumn11" width="12rem" sortProperty="DeliveryDt" filterProperty="DeliveryDt">
                         <m:Label id="idLabPickup11" text="{i18n>PoDeliDt}" />
                         <t:template>
@@ -142,7 +136,6 @@
                             </m:HBox>
                         </t:template>
                     </t:Column>
-                    <!-- Confirm Quantity $$$$$$$$$$$$$$$$$$$$editttt$$$$$$$$$$$$$$$$$$$$$$$$$$$-->
                     <t:Column id="_IDGenColumn12" width="8rem" sortProperty="PkgQuaPcsVal" filterProperty="PkgQuaPcsVal">
                         <m:Label id="_IDGenLabel12" text="{i18n>confipackageQty}" required="true"/>
                         <t:template>
@@ -152,7 +145,6 @@
                             </m:HBox>
                         </t:template>
                     </t:Column>
-                    <!-- Package Quantity -->
                     <t:Column id="_IDGenColumn13" width="8rem" sortProperty="PkgPcsVal" filterProperty="PkgPcsVal">
                         <m:Label id="_IDGenLabel13" text="{i18n>packageQty}" required="true"/>
                         <t:template>
@@ -161,7 +153,6 @@
                             </m:HBox>
                         </t:template>
                     </t:Column>
-                    <!-- Package Type -->
                     <t:Column id="_IDGenColumn16" width="8rem" sortProperty="PkgPcsUni" filterProperty="PkgPcsUni">
                         <m:Label id="_IDGenLabel16" text="{i18n>packageType}" required="true"/>
                         <t:template>
@@ -170,7 +161,6 @@
                             </m:ComboBox>
                         </t:template>
                     </t:Column>
-                    <!-- Package Dimensions -->
                     <t:Column id="_IDGenColumn14" width="16rem" sortProperty="PkgLength" filterProperty="PkgLength">
                         <m:Label id="_IDGenLabel14" text="{i18n>dimensions}" required="true" />
                         <t:template >
@@ -184,7 +174,6 @@
                             </m:HBox>
                         </t:template>
                     </t:Column>
-                    <!-- Package Weight  -->
                     <t:Column id="_IDGenColumn15" width="10rem" sortProperty="PkgWeiVal" filterProperty="PkgWeiVal">
                         <m:Label id="_IDGenLabel15" text="{i18n>weight}" required="true" />
                         <t:template>
@@ -198,14 +187,12 @@
                             </m:HBox>
                         </t:template>
                     </t:Column>
-                    <!-- Package ID -->
                     <t:Column id="_IDGenColumn17" width="8rem" sortProperty="PkgId" filterProperty="PkgId">
                         <m:Label id="_IDGenLabel17" text="{i18n>packageid}" required="true"/>
                         <t:template>
                             <m:Input id="packMatInfoId17" value="{POTableModel>PkgId}" editable="{= ${POTableModel>ReadOnly} !== 'X' }" required="true"/>
                         </t:template>
                     </t:Column>
-                    <!-- Pick up Location -->
                     <t:Column id="_IDGenColumn19" width="15rem" sortProperty="PkgSrcLoc" filterProperty="PkgSrcLoc">
                         <m:Label id="_IDGenLabel19" text="{i18n>pickupLoc}" required="true" />
                         <t:template>
@@ -214,14 +201,12 @@
                             </m:ComboBox>
                         </t:template>
                     </t:Column>
-                    <!-- Pick up date -->
                     <t:Column id="_IDGenColumn18" width="15rem" sortProperty="PkgPickupDt" filterProperty="PkgPickupDt">
                         <m:Label id="idLabPickup18" text="{i18n>pickupdate}" required="true"/>
                         <t:template>
-                            <m:DateTimePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type: 'sap.ui.model.type.DateTime'}" showTimezone="true" timezone="{ path: 'POTableModel>PkgTzone'}"/>
+                            <m:DateTimePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type: 'sap.ui.model.type.DateTime'}" showTimezone="false" timezone="{ path: 'POTableModel>PkgTzone'}"/>
                         </t:template>
                     </t:Column>
-                    <!-- Reefer Comply -->
                     <t:Column id="_IDGenColumn21" width="8rem" sortProperty="PkgReeferComply" filterProperty="PkgReeferComply">
                         <m:Label id="_IDGenLabel21" text="{i18n>reefComply}" />
                         <t:template>
