@@ -12,24 +12,24 @@
                 <fb:filterGroupItems>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem2" name="A" label="{i18n>PurchaseOrderLabel}" groupName="Group1" visibleInFilterBar="true">
                         <fb:control>
-                            <m:MultiInput id="multipleConditions1" width="100%" showValueHelp="true" valueHelpRequest=".onMultipleConditionsVHRequested">
+                            <m:MultiInput id="multipleConditions1" showValueHelp="true" valueHelpRequest=".onMultipleConditionsVHRequested">
                             </m:MultiInput>
                         </fb:control>
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem3" name="B" label="{i18n>packageid}" groupName="Group1" visibleInFilterBar="true">
                         <fb:control>
-                            <m:MultiInput id="multipleConditions2" width="100%" showValueHelp="true" valueHelpRequest="onMultipleConditionsVHRequested">
+                            <m:MultiInput id="multipleConditions2" showValueHelp="true" valueHelpRequest="onMultipleConditionsVHRequested">
                             </m:MultiInput>
                         </fb:control>
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem4" name="C" label="{i18n>PickUpLabel}" groupName="Group1" visibleInFilterBar="true">
                         <fb:control>
-                            <m:DateRangeSelection id="_IDGenDatePicker" showCurrentDateButton="true" showFooter="true" change="handleDateRangeFilter" width="100%"></m:DateRangeSelection >
+                            <m:DateRangeSelection id="_IDGenDatePicker" showCurrentDateButton="true" showFooter="true" change="handleDateRangeFilter"></m:DateRangeSelection >
                         </fb:control>
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem1" name="D" label="{i18n>POpickuplocation}" groupName="Group1" visibleInFilterBar="true">
                         <fb:control>
-                            <m:MultiComboBox id="_IDGenMultiComboBox" width="100%" items="{path:'/ZI_PARTNER_LOC'}">
+                            <m:MultiComboBox id="_IDGenMultiComboBox" items="{path:'/ZI_PARTNER_LOC'}">
                                 <core:Item id="_IDGenItem" key="{Location}" text="{LocDescr}"/>
                             </m:MultiComboBox>
                         </fb:control>
@@ -127,7 +127,7 @@
                             <m:Text id="idPodesloc10" text="{POTableModel>DesLocDescr}"></m:Text>
                         </t:template>
                     </t:Column>
-                    <t:Column id="_IDGenColumn11" width="12rem" sortProperty="DeliveryDt" filterProperty="DeliveryDt">
+                    <t:Column id="_IDGenColumn11" width="12rem" sortProperty="DelEarReqTrq" filterProperty="DelEarReqTrq">
                         <m:Label id="idLabPickup11" text="{i18n>PoDeliDt}" />
                         <t:template>
                             <m:HBox id="_IDGenHBox6">

@@ -30,8 +30,8 @@ sap.ui.define([
                     sap.ui.core.BusyIndicator.hide();
                     if (oData.results) {
                         oData.results.forEach(item => {
-                            if (item.DeliveryDt) {
-                                let utcDate = new Date(item.DeliveryDt);
+                            if (item.DelEarReqTrq) {
+                                let utcDate = new Date(item.DelEarReqTrq);
                                 // Convert UTC to PST in 24-hour format
                                 let pstDate = utcDate.toLocaleString("en-US", {
                                     timeZone: "America/Los_Angeles",
@@ -182,6 +182,7 @@ sap.ui.define([
         onSubmitPress: function () {
             sap.ui.core.BusyIndicator.show();
             let that = this;
+            var oModel = this.getView().getModel("POTableModel");
             let oUpdateModel = this.getView().getModel();
             var oTable = this.byId("idPOTable");
             let gettingAllRows = oTable.getBinding().aIndices;
@@ -196,6 +197,10 @@ sap.ui.define([
                 return;
             }
 
+            let totalUpdates = oSelIndices.length;
+            let successfulUpdates = 0;
+            let failedUpdates = 0;
+
             for (let i = 0; i < oSelIndices.length; i++) {
                 var oContext = oTable.getContextByIndex(oSelIndices[i]);
                 var oFreightOrder = oContext.getObject();
@@ -204,7 +209,6 @@ sap.ui.define([
                 let selectedDate = oFreightOrder.PkgPickupDt;
                 let selectedLocation = oFreightOrder.PkgSrcLoc;
                 let timeZone = aLocations.find(loc => loc.Location === selectedLocation)?.Tzone || "UTC";
-
                 let utcDate = this.convertDateToUTC(selectedDate, timeZone);
                 console.log(utcDate, "UTC converted date")
 
@@ -229,21 +233,35 @@ sap.ui.define([
                 var path = "/ZC_FuTorItem(guid'" + sFO + "')";
                 oUpdateModel.update(path, sPOPayload, {
                     success: function (oData, response) {
+                        successfulUpdates++;
                         sap.ui.core.BusyIndicator.hide();
-                        MessageToast.show("Freight Unit " + oFreightOrder.TorId + " Updated successfully");
+                        MessageToast.show("Freight Unit " + oFreightOrder.TorId + " Updated successfully", { duration: 3000, });
+                        oModel.refresh(true);
+                        oTable.clearSelection();
+
+                        if (successfulUpdates + failedUpdates === totalUpdates) {
+                            sap.ui.core.BusyIndicator.hide();
+                            if (failedUpdates === 0) {
+                                that.onReadOdata(); // Only refresh if all succeeded
+                            }
+                        }
                     },
                     error: function (oError) {
+                        failedUpdates++;
                         sap.ui.core.BusyIndicator.hide();
-                        var sMessage = "Error creating product";
+                        var sMessage = "Error updating freight unit.";
                         try {
                             var oErr = JSON.parse(oError.responseText);
                             sMessage = oErr.error.message.value;
                         } catch (e) { }
                         MessageToast.show(sMessage, { duration: 10000, width: "25em", });
+
+                        if (successfulUpdates + failedUpdates === totalUpdates) {
+
+                        }
                     },
                 });
             }
-            that.onReadOdata();
         },
 
         convertDateToUTC: function (localDate, timeZone) {
@@ -260,7 +278,6 @@ sap.ui.define([
         },
 
         getTimeZoneOffsetInMs: function (timeZone) {
-            debugger
             const offsets = {
                 "CST": -5,
                 "PST": -7,
@@ -329,7 +346,7 @@ sap.ui.define([
 
             var aFreightOrder = oModel.getProperty("/list/" + gettingAllRows[oSelIndices[0]]); // Fetch the selected row data
             if (oSelIndices.length === 0) {
-                sap.m.MessageToast.show("Please select a row first.");
+                sap.m.MessageBox.show("Please select a row first.");
                 return;
             };
             if (!this.oDialogPackItem) {
@@ -411,10 +428,11 @@ sap.ui.define([
                 this._oPOTableModel.setProperty("/ZC_FuTorItem(" + "'" + oData.DbKey + "')", oData)
             }
             this.oDialogPackItem.close();
+            this.oDialogPackItem.destroy();
+            this.oDialogPackItem = null;
         },
 
         handleDateRangeFilter: function (oEvent) {
-            debugger
             var oTable = this.getView().byId("idPOTable");
             var oBinding = oTable.getBinding("rows");
             var oDateRange = this.byId("_IDGenDatePicker");
