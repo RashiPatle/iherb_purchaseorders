@@ -29,7 +29,7 @@
                     </fb:FilterGroupItem>
                     <fb:FilterGroupItem id="_IDGenFilterGroupItem1" name="D" label="{i18n>POpickuplocation}" groupName="Group1" visibleInFilterBar="true">
                         <fb:control>
-                            <m:MultiComboBox id="_IDGenMultiComboBox" items="{path:'/ZI_PARTNER_LOC'}">
+                            <m:MultiComboBox id="_IDGenMultiComboBox" items="{path:'/ZI_VENDOR_LOC'}">
                                 <core:Item id="_IDGenItem" key="{Location}" text="{LocDescr}"/>
                             </m:MultiComboBox>
                         </fb:control>
@@ -201,10 +201,11 @@
                             </m:ComboBox>
                         </t:template>
                     </t:Column>
-                    <t:Column id="_IDGenColumn18" width="15rem" sortProperty="PkgPickupDt" filterProperty="PkgPickupDt">
+                    <t:Column id="_IDGenColumn18" width="10rem" sortProperty="PkgPickupDt" filterProperty="PkgPickupDt">
                         <m:Label id="idLabPickup18" text="{i18n>pickupdate}" required="true"/>
                         <t:template>
-                            <m:DateTimePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type: 'sap.ui.model.type.DateTime'}" showTimezone="false" timezone="{ path: 'POTableModel>PkgTzone'}"/>
+                            <m:DatePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type: 'sap.ui.model.type.DateTime', formatOptions: {'pattern': 'MM/dd/yyyy'}}"></m:DatePicker>
+                            <!-- <m:DateTimePicker id="pickUpDateId" required="true" placeholder="Enter Date" editable="{= ${POTableModel>ReadOnly} !== 'X' }" value="{path:'POTableModel>PkgPickupDt', type: 'sap.ui.model.type.DateTime'}" showTimezone="false" timezone="{ path: 'POTableModel>PkgTzone'}"/> -->
                         </t:template>
                     </t:Column>
                     <t:Column id="_IDGenColumn21" width="8rem" sortProperty="PkgReeferComply" filterProperty="PkgReeferComply">
