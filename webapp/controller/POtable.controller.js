@@ -355,9 +355,11 @@ sap.ui.define([
                     "com.iherb.tm.ztmiherbpurchaseorders.fragment.packItem",
                     this
                 );
+                this.getView().addDependent(this.oDialogPackItem);
+                
                 var oPath = "/ZC_FuTorItem(" + "guid" + "'" + aFreightOrder.DbKey + "')/to_Shipper";
                 this._setPackLoadData(oPath, aFreightOrder);
-                this.getView().addDependent(this.oDialogPackItem);
+                // this.getView().addDependent(this.oDialogPackItem);
             }
             this.oDialogPackItem.open();
         },
