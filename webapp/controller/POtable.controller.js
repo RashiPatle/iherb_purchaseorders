@@ -3,7 +3,8 @@ sap.ui.define([
     "sap/m/MessageToast",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-], (Controller, MessageToast, Filter, FilterOperator) => {
+    "sap/ui/core/library",
+], (Controller, MessageToast, Filter, FilterOperator, coreLibrary) => {
     "use strict";
 
     return Controller.extend("com.iherb.tm.ztmiherbpurchaseorders.controller.POtable", {
@@ -665,5 +666,22 @@ sap.ui.define([
         onMultipleConditionsAfterClose: function () {
             this._oMultipleConditionsDialog.destroy();
         },
+
+        onComboBoxChange: function (oEvent) {
+            var oValidatedComboBox = oEvent.getSource();
+            var sSelectedKey = oValidatedComboBox.getSelectedKey();
+            var sValue = oValidatedComboBox.getValue();
+            var ValueState = coreLibrary.ValueState;
+
+
+            if (!sSelectedKey && sValue) {
+                oValidatedComboBox.setValueState(ValueState.Error);
+                oValidatedComboBox.setValueStateText("Invalid entry. Please select from the list.");
+            } else {
+                oValidatedComboBox.setValueState(ValueState.None);
+            }
+        },
+
+        
     });
 });

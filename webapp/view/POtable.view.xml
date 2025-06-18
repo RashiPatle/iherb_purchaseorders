@@ -156,7 +156,7 @@
                     <t:Column id="_IDGenColumn16" width="8rem" sortProperty="PkgPcsUni" filterProperty="PkgPcsUni">
                         <m:Label id="_IDGenLabel16" text="{i18n>packageType}" required="true"/>
                         <t:template>
-                            <m:ComboBox id="comboBox_PkgPcsUni" selectedKey="{POTableModel>PkgPcsUni}" items="{path:'/ZI_PkgUnitOfMeasureVH',templateShareable:false}" showSecondaryValues="true" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
+                            <m:ComboBox id="comboBox_PkgPcsUni" change="onComboBoxChange" selectedKey="{POTableModel>PkgPcsUni}" items="{path:'/ZI_PkgUnitOfMeasureVH',templateShareable:false}" showSecondaryValues="true" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
                                 <core:ListItem id="_IDGenListItem3" key="{UnitOfMeasure}" text="{UnitOfMeasure}" additionalText="{UnitOfMeasureLongName}" />
                             </m:ComboBox>
                         </t:template>
@@ -168,7 +168,7 @@
                                 <m:Input id="lengthId" value="{POTableModel>PkgLength}" type="Number" editable="{= ${POTableModel>ReadOnly} !== 'X' }" required="true" />
                                 <m:Input id="widthId" value="{POTableModel>PkgWidth}" type="Number" editable="{= ${POTableModel>ReadOnly} !== 'X' }" required="true" />
                                 <m:Input id="heightId" value="{POTableModel>PkgHeight}" type="Number" editable="{= ${POTableModel>ReadOnly} !== 'X' }" required="true"/>
-                                <m:ComboBox id="_IDGenComboBox14" value="{POTableModel>PkgMeasuom}" required="true" items="{path:'/ZI_DimUnitOfMeasureVH',templateShareable:false}" showSecondaryValues="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
+                                <m:ComboBox id="_IDGenComboBox14" change="onComboBoxChange" value="{POTableModel>PkgMeasuom}" required="true" items="{path:'/ZI_DimUnitOfMeasureVH',templateShareable:false}" showSecondaryValues="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
                                     <core:ListItem id="_IDGenListItem5" key="{UnitOfMeasure}" text="{UnitOfMeasure}" additionalText="{UnitOfMeasureLongName}" />
                                 </m:ComboBox>
                             </m:HBox>
@@ -179,7 +179,7 @@
                         <t:template>
                             <m:HBox id="_IDGenHBox15">
                                 <m:Input id="weightId" value="{path:'POTableModel>PkgWeiVal',type: 'sap.ui.model.type.Float', formatOptions: { maxFractionDigits: 3 }}" type="Number" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }" />
-                                <m:ComboBox id="_IDGenComboBox2" value="{POTableModel>PkgWeiUni}" required="true" showSecondaryValues="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
+                                <m:ComboBox id="_IDGenComboBox2" change="onComboBoxChange" value="{POTableModel>PkgWeiUni}" required="true" showSecondaryValues="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
                                     <core:ListItem id="_IDGenListItem2.1" key="LB" text="LB" additionalText="Pound"/>
                                     <core:ListItem id="_IDGenListItem2.2" key="G" text="G" additionalText="Gram"/>
                                     <core:ListItem id="_IDGenListItem2.3" key="KG" text="KG" additionalText="Kilogram"/>
@@ -196,7 +196,7 @@
                     <t:Column id="_IDGenColumn19" width="15rem" sortProperty="PkgSrcLoc" filterProperty="PkgSrcLoc">
                         <m:Label id="_IDGenLabel19" text="{i18n>pickupLoc}" required="true" />
                         <t:template>
-                            <m:ComboBox id="_IDGenComboBox20" width="300px" required="true" selectedKey="{POTableModel>PkgSrcLoc}" editable="{= ${POTableModel>ReadOnly} !== 'X' }" items="{path:'POTableModel>to_Shipper/results',templateShareable:false}">
+                            <m:ComboBox id="_IDGenComboBox20" change="onComboBoxChange" width="300px" required="true" selectedKey="{POTableModel>PkgSrcLoc}" editable="{= ${POTableModel>ReadOnly} !== 'X' }" items="{path:'POTableModel>to_Shipper/results',templateShareable:false}">
                                 <core:ListItem id="_IDGenListItem20" key="{POTableModel>Location}" text="{POTableModel>LocDescr}"></core:ListItem>
                             </m:ComboBox>
                         </t:template>
