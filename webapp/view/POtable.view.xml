@@ -149,7 +149,7 @@
                         <m:Label id="_IDGenLabel13" text="{i18n>packageQty}" required="true"/>
                         <t:template>
                             <m:HBox id="_IDGenHBox3">
-                                <m:Input id="packageQtyId13" value="{POTableModel>PkgPcsVal}" type="Number" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }" />
+                                <m:Input id="packageQtyId13" value="{path:'POTableModel>PkgPcsVal',type: 'sap.ui.model.type.Float', formatOptions: { maxFractionDigits: 0 ,minFractionDigits: 0 ,groupingEnabled: false }}" type="Number" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }" />
                             </m:HBox>
                         </t:template>
                     </t:Column>
@@ -174,11 +174,11 @@
                             </m:HBox>
                         </t:template>
                     </t:Column>
-                    <t:Column id="_IDGenColumn15" width="10rem" sortProperty="PkgWeiVal" filterProperty="PkgWeiVal">
+                    <t:Column id="_IDGenColumn15" width="12rem" sortProperty="PkgWeiVal" filterProperty="PkgWeiVal">
                         <m:Label id="_IDGenLabel15" text="{i18n>weight}" required="true" />
                         <t:template>
                             <m:HBox id="_IDGenHBox15">
-                                <m:Input id="weightId" value="{POTableModel>PkgWeiVal}" type="Number" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }" />
+                                <m:Input id="weightId" value="{path:'POTableModel>PkgWeiVal',type: 'sap.ui.model.type.Float', formatOptions: { maxFractionDigits: 3 }}" type="Number" required="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }" />
                                 <m:ComboBox id="_IDGenComboBox2" value="{POTableModel>PkgWeiUni}" required="true" showSecondaryValues="true" editable="{= ${POTableModel>ReadOnly} !== 'X' }">
                                     <core:ListItem id="_IDGenListItem2.1" key="LB" text="LB" additionalText="Pound"/>
                                     <core:ListItem id="_IDGenListItem2.2" key="G" text="G" additionalText="Gram"/>

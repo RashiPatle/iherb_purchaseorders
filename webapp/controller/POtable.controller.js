@@ -380,11 +380,11 @@ sap.ui.define([
                 path: oPath,
                 template: oLocationItemSelectTemplate
             });
-            sap.ui.getCore().byId("PackQty").setValue(aFreightOrder.PkgPcsVal);
+            sap.ui.getCore().byId("PackQty").setValue(parseFloat(aFreightOrder.PkgPcsVal).toFixed(0));
             sap.ui.getCore().byId("inputLength").setValue(aFreightOrder.PkgLength);
             sap.ui.getCore().byId("inputWidth").setValue(aFreightOrder.PkgWidth);
             sap.ui.getCore().byId("inputHeight").setValue(aFreightOrder.PkgHeight);
-            sap.ui.getCore().byId("inputWeight").setValue(aFreightOrder.PkgWeiVal);
+            sap.ui.getCore().byId("inputWeight").setValue(parseFloat(aFreightOrder.PkgWeiVal).toFixed(3));
             sap.ui.getCore().byId("InputWeightUnit").setValue(aFreightOrder.PkgWeiUni);
             sap.ui.getCore().byId("pkgId").setValue(aFreightOrder.PkgId);
             sap.ui.getCore().byId("inputDate").setValue(aFreightOrder.PkgPickupDt);

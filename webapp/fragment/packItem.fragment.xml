@@ -8,7 +8,7 @@
                 <form:SimpleForm editable="true" id="cFragmentMyform" layout="ResponsiveGridLayout" columnsM="2" columnsL="2" columnsXL="2">
                     <form:content>
                         <Label id="_IDGenLabel6" text="{i18n>packageQty}"/>
-                        <Input id="PackQty" type="Number" required="true"/>
+                        <Input id="PackQty" type="Number" required="true" />
                         <Label id="_IDGenLabel1" text="{i18n>packageType}"/>
                         <ComboBox id="PackType" showSecondaryValues="true" required="true"></ComboBox>
                         <Label id="_IDGenLabel9" text="{i18n>dimensions}"/>
@@ -20,7 +20,7 @@
                         </Input>
                         <ComboBox id="inputDimUnitId" showSecondaryValues="true" required="true"></ComboBox>
                         <Label id="_IDGenLabel10" text="{i18n>weight}"/>
-                        <Input id="inputWeight" type="Number" required="true"/>
+                        <Input id="inputWeight" type="Number" required="true" />
                         <ComboBox id="InputWeightUnit" showSecondaryValues="true" required="true">
                             <core:ListItem id="_IDGenListItem8" key="LB" text="LB" additionalText="Pound"/>
                             <core:ListItem id="_IDGenListItem9" key="G" text="G" additionalText="Gram"/>
@@ -32,7 +32,7 @@
                         <Label id="_IDGenLabel11" text="{i18n>pickupLoc}"/>
                         <ComboBox id="inputLoc" required="true"/>
                         <Label id="_IDGenLabel18" text="{i18n>pickupdate}"/>
-                        <DateTimePicker id="inputDate" required="true" placeholder="Enter Date"></DateTimePicker>
+                        <DatePicker id="inputDate" required="true" placeholder="Enter Date"></DatePicker>
                     </form:content>
                     <form:title>
                         <core:Title text="{i18n>poDetails}" id="title15"/>
